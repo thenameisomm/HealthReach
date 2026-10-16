@@ -1,0 +1,222 @@
+@import "@healthreach/ui/tokens.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Weight policy: display 600–700 only for hero/headlines; body 400; UI labels 500.
+   Max two weights per screen: headings (600) + body (400), buttons may use 500
+   in place of 400 but never a third weight alongside both. */
+
+html {
+  scroll-behavior: smooth;
+}
+body {
+  background: var(--hr-bg);
+  color: var(--hr-text);
+  font-family:
+    "DM Sans",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+}
+.font-display {
+  font-family: "General Sans", "DM Sans", system-ui, sans-serif;
+  letter-spacing: -0.03em;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--hr-ring);
+  border-radius: 6px;
+}
+
+.card {
+  background: var(--hr-surface);
+  border: 1px solid var(--hr-border);
+  border-radius: 12px;
+  transition:
+    box-shadow 200ms ease,
+    transform 200ms ease;
+}
+.card-hover:hover {
+  box-shadow: 0 6px 24px rgba(10, 10, 10, 0.08);
+  transform: translateY(-2px);
+}
+
+.btn-primary {
+  background: #4f46e5; /* hover-indigo for WCAG AA white-on-indigo */
+  color: #fff;
+  border-radius: 6px;
+  font-weight: 500;
+}
+.btn-primary:hover {
+  background: #4338ca;
+}
+.link {
+  color: #4f46e5;
+}
+.link:hover {
+  color: #4338ca;
+}
+
+/* Strong text variants that pass WCAG AA on light and dark surfaces.
+   The base warning (#F59E0B) and error (#EF4444) tokens are kept for
+   borders and icons only — never for small text. */
+.text-strong-warning {
+  color: #92400e;
+}
+.dark .text-strong-warning {
+  color: #fbbf24;
+}
+.text-strong-error {
+  color: #b91c1c;
+}
+.dark .text-strong-error {
+  color: #fca5a5;
+}
+
+/* Minimum 24px touch targets (WCAG 2.2 AA) for small text actions and
+   disclosure toggles. Inline links inside sentences are unaffected. */
+button.link,
+a.link.btn-compact {
+  min-height: 24px;
+  display: inline-flex;
+  align-items: center;
+}
+details > summary:first-child {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+/* Provenance: icon + text label + border treatment, never color alone. */
+.prov {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid var(--hr-border);
+  border-radius: 999px;
+  padding: 2px 10px;
+  background: var(--hr-surface);
+  color: var(--hr-text-secondary);
+  white-space: nowrap;
+}
+.prov .prov-icon {
+  font-size: 12px;
+}
+.prov-qloo {
+  border-style: solid;
+  border-left-width: 3px;
+  border-left-color: #6366f1;
+}
+.prov-geo {
+  border-style: solid;
+  border-left-width: 3px;
+  border-left-color: #0e9f6e;
+}
+.prov-ai {
+  border-style: solid;
+  border-left-width: 3px;
+  border-left-color: #f59e0b;
+}
+.prov-user {
+  border-style: solid;
+  border-left-width: 3px;
+  border-left-color: #6b6b6b;
+}
+.prov-illustrative {
+  border-style: dashed;
+  border-width: 1.5px;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 6px,
+    rgba(107, 107, 107, 0.06) 6px,
+    rgba(107, 107, 107, 0.06) 12px
+  );
+}
+
+/* Dot-grid motif: entry screen only, geographic echo. The dots live on a
+   ::before layer so the fade mask never touches the text (a mask on the
+   section itself made hero copy unreadable). */
+.dot-grid {
+  position: relative;
+}
+.dot-grid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    circle,
+    rgba(10, 10, 10, 0.14) 1px,
+    transparent 1px
+  );
+  background-size: 18px 18px;
+  mask-image: radial-gradient(
+    ellipse 90% 80% at 50% 20%,
+    black 30%,
+    transparent 75%
+  );
+  pointer-events: none;
+}
+.dot-grid > * {
+  position: relative;
+}
+
+.demo-banner {
+  border-bottom: 2px dashed #6b6b6b;
+  background: #fff8e6;
+}
+.dark .demo-banner {
+  background: #221c08;
+}
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--hr-border);
+  border-radius: 6px;
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  .skeleton::after {
+    display: none;
+  }
+}
+
+.leaflet-container {
+  border-radius: 12px;
+  border: 1px solid var(--hr-border);
+}
