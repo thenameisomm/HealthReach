@@ -1,0 +1,25 @@
+{
+  "name": "healthreach-ai",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "dev:web": "turbo run dev --filter=@healthreach/web",
+    "dev:api": "turbo run dev --filter=@healthreach/api",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,css,md}\"",
+    "generate:api": "pnpm --filter @healthreach/web generate:api"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3",
+    "turbo": "^2.4.0",
+    "typescript": "^5.5.4"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
