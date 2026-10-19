@@ -1,0 +1,263 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 1200 600"
+  width="100%"
+  height="auto"
+  role="img"
+  aria-labelledby="workflow-title workflow-desc"
+  style="background: var(--hr-canvas, #e5e5e5);"
+>
+  <title id="workflow-title">HealthReach Campaign Workflow</title>
+  <desc id="workflow-desc">
+    Four-stage campaign workflow: Brief → Evidence → Plan → Results.
+    Each stage shows inputs, processing, outputs, and the phase state machine.
+  </desc>
+
+  <defs>
+    <linearGradient id="stageGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#6366f1"/>
+    </linearGradient>
+    <linearGradient id="stageGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+    <linearGradient id="stageGrad3" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
+    </linearGradient>
+    <linearGradient id="stageGrad4" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#f87171"/>
+    </linearGradient>
+    <marker id="bigArrow" markerWidth="16" markerHeight="12" refX="14" refY="6" orient="auto">
+      <path d="M0,0 L0,12 L16,6 Z" fill="#c6c6c6"/>
+    </marker>
+    <style>
+      .stage-card { fill: #ffffff; stroke: #c6c6c6; stroke-width: 1; rx: 24; }
+      .stage-header { font-family: 'Barlow Condensed', sans-serif; font-size: 28; font-weight: 700; fill: #ffffff; text-transform: uppercase; letter-spacing: -0.02em; }
+      .stage-number { font-family: 'Barlow Condensed', sans-serif; font-size: 60; font-weight: 700; fill: #e5e5e5; }
+      .stage-title { font-family: 'Barlow Condensed', sans-serif; font-size: 22; font-weight: 700; fill: #171717; text-transform: uppercase; letter-spacing: -0.01em; }
+      .stage-desc { font-family: Inter, sans-serif; font-size: 14; fill: #444444; line-height: 1.5; }
+      .stage-input { font-family: Inter, sans-serif; font-size: 13; fill: #6b6b6b; }
+      .stage-output { font-family: Inter, sans-serif; font-size: 13; fill: #10b981; font-weight: 500; }
+      .provenance-chip { font-family: Inter, sans-serif; font-size: 11; font-weight: 600; rx: 8; }
+      .phase-badge { font-family: Inter, sans-serif; font-size: 11; font-weight: 600; rx: 10; }
+      .arrow-label { font-family: Inter, sans-serif; font-size: 11; fill: #979797; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="600" fill="#e5e5e5"/>
+
+  <!-- Title -->
+  <text x="600" y="50" font-family="'Barlow Condensed', sans-serif" font-size="36" font-weight="700" fill="#171717" text-anchor="middle" text-transform="uppercase" letter-spacing="-0.02em">
+    Campaign Lifecycle: Four Stages, One Guided Workflow
+  </text>
+
+  <!-- Stage 1: BRIEF -->
+  <g transform="translate(40, 80)">
+    <rect x="0" y="0" width="260" height="500" class="stage-card"/>
+
+    <!-- Header -->
+    <rect x="0" y="0" width="260" height="70" rx="24 24 0 0" fill="url(#stageGrad1)"/>
+    <text x="20" y="45" class="stage-header">1. Brief</text>
+
+    <!-- Phase badges -->
+    <g transform="translate(20, 90)">
+      <rect x="0" y="0" width="100" height="24" rx="12" fill="#4f46e5"/>
+      <text x="50" y="17" class="phase-badge" fill="#ffffff" text-anchor="middle">loading</text>
+    </g>
+    <g transform="translate(140, 90)">
+      <rect x="0" y="0" width="100" height="24" rx="12" fill="#e5e5e5" stroke="#c6c6c6"/>
+      <text x="50" y="17" class="phase-badge" fill="#979797" text-anchor="middle">brief</text>
+    </g>
+
+    <!-- Inputs -->
+    <text x="20" y="150" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#171717">Organizer Inputs</text>
+    <g transform="translate(20, 170)">
+      <text class="stage-input">• Topic (3-120 chars)</text>
+      <text x="0" y="25" class="stage-input">• Location (autocomplete + map)</text>
+      <text x="0" y="50" class="stage-input">• Audience age range</text>
+      <text x="0" y="75" class="stage-input">• Budget (USD)</text>
+      <text x="0" y="100" class="stage-input">• Duration (1-90 days)</text>
+      <text x="0" y="125" class="stage-input">• Objective (4 options)</text>
+    </g>
+
+    <!-- Processing -->
+    <text x="20" y="320" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#171717">Processing</text>
+    <g transform="translate(20, 340)">
+      <text class="stage-input">• Geocode location (Nominatim)</text>
+      <text x="0" y="25" class="stage-input">• Validate brief fields</text>
+      <text x="0" y="50" class="stage-input">• Create campaign record</text>
+    </g>
+
+    <!-- Output -->
+    <text x="20" y="410" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#10b981">Output</text>
+    <g transform="translate(20, 430)">
+      <text class="stage-output">Campaign ID + geocode</text>
+      <text x="0" y="25" class="stage-output">Mode: real | demo</text>
+    </g>
+
+    <!-- Provenance -->
+    <g transform="translate(20, 480)">
+      <text x="0" y="0" font-family="Inter, sans-serif" font-size="11" fill="#979797">Provenance:</text>
+      <rect x="0" y="10" width="70" height="20" rx="10" fill="#e5e5e5" stroke="#c6c6c6"/>
+      <text x="35" y="25" font-family="Inter, sans-serif" font-size="10" font-weight="500" fill="#444444" text-anchor="middle">USER</text>
+      <rect x="80" y="10" width="70" height="20" rx="10" fill="#e5e5e5" stroke="#c6c6c6"/>
+      <text x="115" y="25" font-family="Inter, sans-serif" font-size="10" font-weight="500" fill="#444444" text-anchor="middle">GEO</text>
+    </g>
+  </g>
+
+  <!-- Arrow 1 -->
+  <path d="M 320 300 L 360 300" stroke="#c6c6c6" stroke-width="3" fill="none" marker-end="url(#bigArrow)"/>
+  <text x="340" y="290" class="arrow-label">POST /campaigns</text>
+
+  <!-- Stage 2: EVIDENCE -->
+  <g transform="translate(380, 80)">
+    <rect x="0" y="0" width="260" height="500" class="stage-card"/>
+
+    <rect x="0" y="0" width="260" height="70" rx="24 24 0 0" fill="url(#stageGrad2)"/>
+    <text x="20" y="45" class="stage-header">2. Evidence</text>
+
+    <g transform="translate(20, 90)">
+      <rect x="0" y="0" width="100" height="24" rx="12" fill="#e5e5e5" stroke="#c6c6c6"/>
+      <text x="50" y="17" class="phase-badge" fill="#979797" text-anchor="middle">evidence-loading</text>
+    </g>
+    <g transform="translate(140, 90)">
+      <rect x="0" y="0" width="100" height="24" rx="12" fill="#10b981"/>
+      <text x="50" y="17" class="phase-badge" fill="#ffffff" text-anchor="middle">evidence</text>
+    </g>
+
+    <text x="20" y="150" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#171717">Parallel Gathering</text>
+    <g transform="translate(20, 170)">
+      <text class="stage-input">Qloo 3-step chain:</text>
+      <text x="0" y="25" class="stage-input">  1. Place affinities near location</text>
+      <text x="0" y="50" class="stage-input">  2. Taste tags from top entity</text>
+      <text x="0" y="75" class="stage-input">  3. Cross-check with 2nd place</text>
+      <text x="0" y="110" class="stage-input">OSM venues (Overpass):</text>
+      <text x="0" y="135" class="stage-input">  Clinic, pharmacy, community_centre</text>
+      <text x="0" y="160" class="stage-input">  Library, school, park, marketplace</text>
+    </g>
+
+    <text x="20" y="355" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#171717">Status Vocabulary</text>
+    <g transform="translate(20, 375)">
+      <rect x="0" y="0" width="70" height="22" rx="11" fill="#d1ffca" stroke="#10b981"/>
+      <text x="35" y="15" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="#171717" text-anchor="middle">ok</text>
+      <rect x="80" y="0" width="70" height="22" rx="11" fill="#fff3cd" stroke="#f59e0b"/>
+      <text x="115" y="15" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="#171717" text-anchor="middle">thin</text>
+      <rect x="160" y="0" width="90" height="22" rx="11" fill="#fef2f2" stroke="#ef4444"/>
+      <text x="205" y="15" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="#171717" text-anchor="middle">unavailable</text>
+    </g>
+
+    <text x="20" y="425" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#10b981">Outputs</text>
+    <g transform="translate(20, 445)">
+      <text class="stage-output">• Qloo signals (affinity, tags)</text>
+      <text x="0" y="25" class="stage-output">• Qloo chain steps (1-3, with skip reasons)</text>
+      <text x="0" y="50" class="stage-output">• OSM venues (needs_verification: true)</text>
+      <text x="0" y="75" class="stage-output">• Status + plain-language notes</text>
+    </g>
+
+    <g transform="translate(20, 480)">
+      <text x="0" y="0" font-family="Inter, sans-serif" font-size="11" fill="#979797">Provenance:</text>
+      <rect x="0" y="10" width="70" height="20" rx="10" fill="#e5e5e5" stroke="#4f46e5"/>
+      <text x="35" y="25" font-family="Inter, sans-serif" font-size="10" font-weight="500" fill="#4f46e5" text-anchor="middle">QLOO</text>
+      <rect x="80" y="10" width="70" height="20" rx="10" fill="#e5e5e5" stroke="#10b981"/>
+      <text x="115" y="25" font-family="Inter, sans-serif" font-size="10" font-weight="500" fill="#10b981" text-anchor="middle">GEO</text>
+    </g>
+  </g>
+
+  <!-- Arrow 2 -->
+  <path d="M 660 300 L 700 300" stroke="#c6c6c6" stroke-width="3" fill="none" marker-end="url(#bigArrow)"/>
+  <text x="680" y="290" class="arrow-label">POST /evidence</text>
+
+  <!-- Stage 3: PLAN -->
+  <g transform="translate(720, 80)">
+    <rect x="0" y="0" width="260" height="500" class="stage-card"/>
+
+    <rect x="0" y="0" width="260" height="70" rx="24 24 0 0" fill="url(#stageGrad3)"/>
+    <text x="20" y="45" class="stage-header">3. Plan</text>
+
+    <g transform="translate(20, 90)">
+      <rect x="0" y="0" width="100" height="24" rx="12" fill="#e5e5e5" stroke="#c6c6c6"/>
+      <text x="50" y="17" class="phase-badge" fill="#979797" text-anchor="middle">plan-loading</text>
+    </g>
+    <g transform="translate(140, 90)">
+      <rect x="0" y="0" width="100" height="24" rx="12" fill="#f59e0b"/>
+      <text x="50" y="17" class="phase-badge" fill="#171717" text-anchor="middle">ready</text>
+    </g>
+
+    <text x="20" y="150" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#171717">Generation</text>
+    <g transform="translate(20, 170)">
+      <text class="stage-input">Deterministic planner (always)</text>
+      <text x="0" y="25" class="stage-input">LLM attempt (if key configured)</text>
+      <text x="0" y="50" class="stage-input">Pydantic validation + 1 repair</text>
+      <text x="0" y="75" class="stage-input">Budget forced exact</text>
+    </g>
+
+    <text x="20" y="300" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#171717">Plan Contents</text>
+    <g transform="translate(20, 320)">
+      <text class="stage-output">• Activities (channel, why, cost)</text>
+      <text x="0" y="25" class="stage-output">• Venue candidates (worth-evaluating)</text>
+      <text x="0" y="50" class="stage-output">• Budget lines (exact total)</text>
+      <text x="0" y="75" class="stage-output">• Materials (poster, message, script)</text>
+      <text x="0" y="100" class="stage-output">• Metrics (target range + basis)</text>
+      <text x="0" y="125" class="stage-output">• planner: ai-model | standard-template</text>
+    </g>
+
+    <text x="20" y="470" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#171717">Regen</text>
+    <text x="20" y="490" class="stage-input">Section-level (version++)</text>
+
+    <g transform="translate(20, 480)">
+      <text x="0" y="0" font-family="Inter, sans-serif" font-size="11" fill="#979797">Provenance:</text>
+      <rect x="0" y="10" width="70" height="20" rx="10" fill="#e5e5e5" stroke="#8b5cf6"/>
+      <text x="35" y="25" font-family="Inter, sans-serif" font-size="10" font-weight="500" fill="#8b5cf6" text-anchor="middle">AI</text>
+    </g>
+  </g>
+
+  <!-- Arrow 3 -->
+  <path d="M 1000 300 L 1040 300" stroke="#c6c6c6" stroke-width="3" fill="none" marker-end="url(#bigArrow)"/>
+  <text x="1020" y="290" class="arrow-label">POST /plan</text>
+
+  <!-- Stage 4: RESULTS -->
+  <g transform="translate(1060, 80)">
+    <rect x="0" y="0" width="100" height="500" class="stage-card"/>
+
+    <rect x="0" y="0" width="100" height="70" rx="24 24 0 0" fill="url(#stageGrad4)"/>
+    <text x="10" y="45" class="stage-header" style="font-size:24;">4. Results</text>
+
+    <g transform="translate(10, 90)">
+      <rect x="0" y="0" width="80" height="24" rx="12" fill="#ef4444"/>
+      <text x="40" y="17" class="phase-badge" fill="#ffffff" text-anchor="middle">ready</text>
+    </g>
+
+    <text x="10" y="150" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#171717">Aggregate Entry</text>
+    <g transform="translate(10, 170)">
+      <text class="stage-input">• Registrations</text>
+      <text x="0" y="25" class="stage-input">• Attendance</text>
+      <text x="0" y="50" class="stage-input">• Spend (USD)</text>
+      <text x="0" y="75" class="stage-input">• Engagement</text>
+    </g>
+
+    <text x="10" y="280" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#10b981">Analytics</text>
+    <g transform="translate(10, 300)">
+      <text class="stage-output">Planned vs Actual table</text>
+      <text x="0" y="25" class="stage-output">Cost per registration</text>
+      <text x="0" y="50" class="stage-output">Attendance rate</text>
+      <text x="0" y="75" class="stage-output">Null-safe: "Not calculable"</text>
+    </g>
+
+    <text x="10" y="400" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#171717">Descriptive Only</text>
+    <text x="10" y="420" class="stage-input" style="font-size:11;">"Differences may reflect many factors and do not prove the plan caused the outcome."</text>
+
+    <g transform="translate(10, 480)">
+      <text x="0" y="0" font-family="Inter, sans-serif" font-size="11" fill="#979797">Provenance:</text>
+      <rect x="0" y="10" width="70" height="20" rx="10" fill="#e5e5e5" stroke="#ef4444"/>
+      <text x="35" y="25" font-family="Inter, sans-serif" font-size="10" font-weight="500" fill="#ef4444" text-anchor="middle">USER</text>
+    </g>
+  </g>
+
+  <!-- Bottom note -->
+  <text x="600" y="590" font-family="Inter, sans-serif" font-size="13" fill="#979797" text-anchor="middle">
+    Each stage is a discrete API call — no dashboards, no accounts, just the guided workflow
+  </text>
+</svg>

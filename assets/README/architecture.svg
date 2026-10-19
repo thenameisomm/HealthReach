@@ -1,0 +1,195 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 1200 800"
+  width="100%"
+  height="auto"
+  role="img"
+  aria-labelledby="arch-title arch-desc"
+  style="background: var(--hr-canvas, #e5e5e5);"
+>
+  <title id="arch-title">HealthReach AI System Architecture</title>
+  <desc id="arch-desc">
+    Architecture diagram showing the monorepo structure with Next.js frontend, FastAPI backend, shared packages,
+    and external integrations (Qloo, Nominatim, Overpass, LLM, MongoDB).
+  </desc>
+
+  <defs>
+    <linearGradient id="cardGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#fafafa"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#d1ffca"/>
+      <stop offset="100%" stop-color="#a0e8a8"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#c6c6c6"/>
+    </marker>
+    <style>
+      .layer-bg { fill: #f3f3f3; stroke: #c6c6c6; stroke-width: 1; rx: 16; }
+      .component { fill: url(#cardGrad); stroke: #c6c6c6; stroke-width: 1; rx: 12; }
+      .component-title { font-family: 'Barlow Condensed', sans-serif; font-size: 16; font-weight: 700; fill: #171717; text-transform: uppercase; letter-spacing: -0.02em; }
+      .component-item { font-family: Inter, sans-serif; font-size: 13; fill: #444444; }
+      .external { fill: #fff8e1; stroke: #f59e0b; stroke-width: 1; rx: 12; }
+      .external-title { font-family: 'Barlow Condensed', sans-serif; font-size: 14; font-weight: 700; fill: #171717; text-transform: uppercase; }
+      .flow-text { font-family: Inter, sans-serif; font-size: 12; fill: #979797; text-anchor: middle; }
+      .section-label { font-family: 'Barlow Condensed', sans-serif; font-size: 20; font-weight: 700; fill: #171717; text-transform: uppercase; letter-spacing: -0.02em; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="800" fill="#e5e5e5"/>
+
+  <!-- Section Labels -->
+  <text x="60" y="50" class="section-label">Frontend (Next.js 14)</text>
+  <text x="60" y="310" class="section-label">Backend (FastAPI)</text>
+  <text x="60" y="570" class="section-label">Shared Packages</text>
+  <text x="800" y="50" class="section-label">External Integrations</text>
+
+  <!-- Frontend Layer -->
+  <rect x="40" y="70" width="700" height="220" class="layer-bg"/>
+
+  <!-- Frontend Components -->
+  <g transform="translate(60, 90)">
+    <!-- Routes -->
+    <rect x="0" y="0" width="200" height="180" class="component"/>
+    <text x="10" y="25" class="component-title">Routes</text>
+    <text x="10" y="50" class="component-item">/ (Landing)</text>
+    <text x="10" y="70" class="component-item">/new (Brief)</text>
+    <text x="10" y="90" class="component-item">/campaigns (List)</text>
+    <text x="10" y="110" class="component-item">/campaigns/[id] (Workspace)</text>
+
+    <!-- Components -->
+    <rect x="220" y="0" width="220" height="180" class="component"/>
+    <text x="230" y="25" class="component-title">Components</text>
+    <text x="230" y="50" class="component-item">Nav, ProvenanceBadge</text>
+    <text x="230" y="70" class="component-item">InfoTip, MapView</text>
+    <text x="230" y="90" class="component-item">ClickMap, LocationAutocomplete</text>
+    <text x="230" y="110" class="component-item">States (Empty, Skeleton, Progress)</text>
+
+    <!-- Lib -->
+    <rect x="460" y="0" width="220" height="180" class="component"/>
+    <text x="470" y="25" class="component-title">Lib</text>
+    <text x="470" y="50" class="component-item">api.ts (Typed client)</text>
+    <text x="470" y="70" class="component-item">types.ts</text>
+    <text x="470" y="90" class="component-item">generate-api-types.mjs</text>
+    <text x="470" y="110" class="component-item">OpenAPI parity check</text>
+  </g>
+
+  <!-- Backend Layer -->
+  <rect x="40" y="330" width="700" height="220" class="layer-bg"/>
+
+  <g transform="translate(60, 350)">
+    <!-- API Routes -->
+    <rect x="0" y="0" width="200" height="180" class="component"/>
+    <text x="10" y="25" class="component-title">API Routes</text>
+    <text x="10" y="50" class="component-item">POST /campaigns</text>
+    <text x="10" y="70" class="component-item">GET /campaigns</text>
+    <text x="10" y="90" class="component-item">GET /campaigns/{id}</text>
+    <text x="10" y="110" class="component-item">POST /evidence</text>
+    <text x="10" y="130" class="component-item">POST /plan (+regen)</text>
+    <text x="10" y="150" class="component-item">POST /results</text>
+    <text x="10" y="170" class="component-item">GET /analytics</text>
+
+    <!-- Services -->
+    <rect x="220" y="0" width="220" height="180" class="component"/>
+    <text x="230" y="25" class="component-title">Services</text>
+    <text x="230" y="50" class="component-item">qloo_client (3-step chain)</text>
+    <text x="230" y="70" class="component-item">geo_client (Nominatim + Overpass)</text>
+    <text x="230" y="90" class="component-item">llm_client (OpenAI-compat)</text>
+    <text x="230" y="110" class="component-item">planner (deterministic + LLM)</text>
+    <text x="230" y="130" class="component-item">demo_data (isolated)</text>
+
+    <!-- Data & Config -->
+    <rect x="460" y="0" width="220" height="180" class="component"/>
+    <text x="470" y="25" class="component-title">Data & Config</text>
+    <text x="470" y="50" class="component-item">models/ (Pydantic v2)</text>
+    <text x="470" y="70" class="component-item">db.py (Motor + in-memory)</text>
+    <text x="470" y="90" class="component-item">config.py (pydantic-settings)</text>
+    <text x="470" y="110" class="component-item">rate_limit.py (60/min/IP)</text>
+    <text x="470" y="130" class="component-item">tests/ (34 passing)</text>
+  </g>
+
+  <!-- Shared Packages -->
+  <rect x="40" y="590" width="700" height="150" class="layer-bg"/>
+
+  <g transform="translate(60, 610)">
+    <rect x="0" y="0" width="220" height="110" class="component"/>
+    <text x="10" y="25" class="component-title">packages/ui</text>
+    <text x="10" y="50" class="component-item">tokens.css (Design tokens)</text>
+    <text x="10" y="70" class="component-item">index.ts (Provenance meta)</text>
+
+    <rect x="240" y="0" width="220" height="110" class="component"/>
+    <text x="250" y="25" class="component-title">packages/tsconfig</text>
+    <text x="250" y="50" class="component-item">base.json (Strict TS)</text>
+    <text x="250" y="70" class="component-item">Shared across web/api</text>
+
+    <rect x="480" y="0" width="220" height="110" class="component"/>
+    <text x="490" y="25" class="component-title">Monorepo</text>
+    <text x="490" y="50" class="component-item">Turborepo 2 + pnpm 9</text>
+    <text x="490" y="70" class="component-item">pnpm-workspace.yaml</text>
+  </g>
+
+  <!-- External Integrations -->
+  <rect x="780" y="70" width="380" height="700" class="layer-bg"/>
+
+  <g transform="translate(800, 90)">
+    <text x="0" y="20" class="section-label" style="font-size:18;">External Services</text>
+
+    <!-- Qloo -->
+    <rect x="0" y="40" width="340" height="130" class="external"/>
+    <text x="10" y="65" class="external-title">Qloo Insights API</text>
+    <text x="10" y="90" class="component-item">GET /v2/insights (x-api-key)</text>
+    <text x="10" y="110" class="component-item">3-step agent chain</text>
+    <text x="10" y="130" class="component-item">Place affinities → Taste tags → Cross-check</text>
+    <text x="10" y="150" class="component-item">Rate: 5 req/s, 10k/month</text>
+
+    <!-- Nominatim -->
+    <rect x="0" y="180" width="340" height="110" class="external"/>
+    <text x="10" y="205" class="external-title">Nominatim (OSM)</text>
+    <text x="10" y="230" class="component-item">Geocode / Reverse / Suggest</text>
+    <text x="10" y="250" class="component-item">1 req/s throttle, 24h cache</text>
+    <text x="10" y="270" class="component-item">HTTP/1.1 + identifying UA</text>
+
+    <!-- Overpass -->
+    <rect x="0" y="300" width="340" height="110" class="external"/>
+    <text x="10" y="325" class="external-title">Overpass API</text>
+    <text x="10" y="350" class="component-item">Community venues query</text>
+    <text x="10" y="370" class="component-item">3-endpoint failover</text>
+    <text x="10" y="390" class="component-item">20 result limit, 10s timeout</text>
+
+    <!-- LLM -->
+    <rect x="0" y="420" width="340" height="110" class="external"/>
+    <text x="10" y="445" class="external-title">LLM (OpenAI-compat)</text>
+    <text x="10" y="470" class="component-item">Structured JSON output</text>
+    <text x="10" y="490" class="component-item">1 repair retry → template fallback</text>
+    <text x="10" y="510" class="component-item">planner: ai-model | standard-template</text>
+
+    <!-- MongoDB -->
+    <rect x="0" y="540" width="340" height="100" class="external"/>
+    <text x="10" y="565" class="external-title">MongoDB (Motor)</text>
+    <text x="10" y="590" class="component-item">Async + in-memory fallback</text>
+    <text x="10" y="610" class="component-item">TTL index on ext_cache (24h)</text>
+
+    <!-- Map Tiles -->
+    <rect x="0" y="650" width="340" height="80" class="external"/>
+    <text x="10" y="675" class="external-title">OSM Tiles (Leaflet)</text>
+    <text x="10" y="695" class="component-item">Standard + CARTO Light + attribution</text>
+  </g>
+
+  <!-- Data Flow Arrows (Frontend → Backend) -->
+  <g stroke="#c6c6c6" stroke-width="2" fill="none" marker-end="url(#arrow)">
+    <path d="M 400 290 V 330"/>
+    <path d="M 580 290 V 330"/>
+    <path d="M 760 290 V 330"/>
+  </g>
+
+  <!-- Backend → External -->
+  <g stroke="#f59e0b" stroke-width="2" fill="none" marker-end="url(#arrow)" stroke-dasharray="8,4">
+    <path d="M 800 400 H 800"/>
+    <path d="M 800 460 H 800"/>
+    <path d="M 800 520 H 800"/>
+    <path d="M 800 580 H 800"/>
+    <path d="M 800 640 H 800"/>
+  </g>
+</svg>

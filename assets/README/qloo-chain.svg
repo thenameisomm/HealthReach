@@ -1,0 +1,242 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 1200 700"
+  width="100%"
+  height="auto"
+  role="img"
+  aria-labelledby="qloo-title qloo-desc"
+  style="background: var(--hr-canvas, #e5e5e5);"
+>
+  <title id="qloo-title">Qloo 3-Step Agent Chain</title>
+  <desc id="qloo-desc">
+    Qloo cultural intelligence runs as a deterministic 3-step agent chain.
+    Step 1: Place affinities near the campaign location.
+    Step 2: Taste tags seeded by the top place's entity_id.
+    Step 3: Cross-check with a second place's entity_id.
+    Each step is persisted with plain-language reasoning and honest status.
+  </desc>
+
+  <defs>
+    <linearGradient id="stepGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#6366f1"/>
+    </linearGradient>
+    <linearGradient id="stepGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+    <linearGradient id="stepGrad3" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
+    </linearGradient>
+    <marker id="flowArrow" markerWidth="12" markerHeight="10" refX="10" refY="5" orient="auto">
+      <path d="M0,0 L0,10 L12,5 Z" fill="#c6c6c6"/>
+    </marker>
+    <style>
+      .step-card { fill: #ffffff; stroke: #c6c6c6; stroke-width: 1; rx: 24; }
+      .step-header { font-family: 'Barlow Condensed', sans-serif; font-size: 24; font-weight: 700; fill: #ffffff; text-transform: uppercase; letter-spacing: -0.02em; }
+      .step-title { font-family: 'Barlow Condensed', sans-serif; font-size: 20; font-weight: 700; fill: #171717; text-transform: uppercase; letter-spacing: -0.01em; }
+      .step-detail { font-family: Inter, sans-serif; font-size: 14; fill: #444444; line-height: 1.5; }
+      .step-code { font-family: 'JetBrains Mono', monospace; font-size: 12; fill: #4f46e5; }
+      .step-status-ok { fill: #d1ffca; stroke: #10b981; }
+      .step-status-skip { fill: #fef2f2; stroke: #ef4444; }
+      .status-text { font-family: Inter, sans-serif; font-size: 11; font-weight: 600; rx: 8; }
+      .param { font-family: 'JetBrains Mono', monospace; font-size: 11; fill: #6366f1; }
+      .arrow-label { font-family: Inter, sans-serif; font-size: 11; fill: #979797; text-anchor: middle; }
+      .provenance-note { font-family: Inter, sans-serif; font-size: 12; font-style: italic; fill: #979797; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="700" fill="#e5e5e5"/>
+
+  <!-- Title -->
+  <text x="600" y="50" font-family="'Barlow Condensed', sans-serif" font-size="40" font-weight="700" fill="#171717" text-anchor="middle" text-transform="uppercase" letter-spacing="-0.02em">
+    Qloo Cultural Intelligence: 3-Step Agent Chain
+  </text>
+
+  <!-- Subtitle -->
+  <text x="600" y="90" font-family="Inter, sans-serif" font-size="16" fill="#444444" text-anchor="middle">
+    Deterministic backend orchestration • Each step seeds the next • Honest status: ok | thin | unavailable
+  </text>
+
+  <!-- STEP 1 -->
+  <g transform="translate(40, 130)">
+    <rect x="0" y="0" width="360" height="520" class="step-card"/>
+
+    <!-- Header -->
+    <rect x="0" y="0" width="360" height="80" rx="24 24 0 0" fill="url(#stepGrad1)"/>
+    <text x="20" y="50" class="step-header">Step 1: Place Affinities</text>
+
+    <!-- Status badge -->
+    <g transform="translate(20, 100)">
+      <rect x="0" y="0" width="80" height="26" rx="13" class="step-status-ok" stroke-width="1"/>
+      <text x="40" y="19" class="status-text" fill="#10b981" text-anchor="middle">ok</text>
+    </g>
+
+    <!-- Question -->
+    <text x="20" y="150" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#171717">Question Asked</text>
+    <text x="20" y="175" class="step-detail" style="max-width:320px;">"Which cultural places near this location match the local crowd's taste?"</text>
+
+    <!-- Request Parameters -->
+    <text x="20" y="215" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#171717">Request Parameters</text>
+    <g transform="translate(20, 235)">
+      <text class="param">GET /v2/insights</text>
+      <text x="0" y="22" class="param">filter.type=urn:entity:place</text>
+      <text x="0" y="44" class="param">filter.location.query={location_text}</text>
+      <text x="0" y="66" class="param">filter.location.radius=5000</text>
+      <text x="0" y="88" class="param">feature.explainability=true</text>
+      <text x="0" y="110" class="param">filter.location={lat},{lon} (optional)</text>
+    </g>
+
+    <!-- Response Processing -->
+    <text x="20" y="375" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#171717">Response → Signals</text>
+    <g transform="translate(20, 395)">
+      <text class="step-detail">Top 8 places → QlooSignal(kind="place-affinity")</text>
+      <text x="0" y="22" class="step-detail">Affinity (-1..1), Popularity (0..1), Tags, Entity ID</text>
+    </g>
+
+    <!-- Step Record -->
+    <text x="20" y="450" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#171717">Persisted as QlooChainStep</text>
+    <g transform="translate(20, 470)">
+      <text class="step-code">{ step: 1, title: "Looked at culture spots near here",</text>
+      <text x="0" y="22" class="step-code">  asked: "Which places near {location} match...",</text>
+      <text x="0" y="44" class="step-code">  found: "N places — e.g: {top_names}",</text>
+      <text x="0" y="66" class="step-code">  next: "Now asking: what else do fans of {top} like?" }</text>
+    </g>
+
+    <!-- Seeds next step -->
+    <g transform="translate(20, 560)">
+      <text class="provenance-note">▼ Seeds Step 2 with top place's entity_id → signal.interests.entities</text>
+    </g>
+  </g>
+
+  <!-- Arrow 1 -->
+  <path d="M 420 390 L 460 390" stroke="#c6c6c6" stroke-width="3" fill="none" marker-end="url(#flowArrow)"/>
+  <text x="440" y="380" class="arrow-label">entity_id → signal.interests.entities</text>
+
+  <!-- STEP 2 -->
+  <g transform="translate(480, 130)">
+    <rect x="0" y="0" width="360" height="520" class="step-card"/>
+
+    <rect x="0" y="0" width="360" height="80" rx="24 24 0 0" fill="url(#stepGrad2)"/>
+    <text x="20" y="50" class="step-header">Step 2: Taste Tags</text>
+
+    <g transform="translate(20, 100)">
+      <rect x="0" y="0" width="80" height="26" rx="13" class="step-status-ok" stroke-width="1"/>
+      <text x="40" y="19" class="status-text" fill="#10b981" text-anchor="middle">ok</text>
+    </g>
+
+    <text x="20" y="150" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#171717">Question Asked</text>
+    <text x="20" y="175" class="step-detail" style="max-width:320px;">"What taste tags do fans of the top place also enjoy, in this location?"</text>
+
+    <text x="20" y="215" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#171717">Request Parameters</text>
+    <g transform="translate(20, 235)">
+      <text class="param">GET /v2/insights</text>
+      <text x="0" y="22" class="param">filter.type=urn:tag</text>
+      <text x="0" y="44" class="param">signal.interests.entities={top_entity_id}</text>
+      <text x="0" y="66" class="param">signal.location.query={location_text}</text>
+    </g>
+
+    <text x="20" y="305" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#171717">Response → Signals</text>
+    <g transform="translate(20, 325)">
+      <text class="step-detail">Top 6 tags → QlooSignal(kind="tag-affinity")</text>
+      <text x="0" y="22" class="step-detail">Affinity, Tag name, Provenance note</text>
+    </g>
+
+    <text x="20" y="375" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#171717">Persisted as QlooChainStep</text>
+    <g transform="translate(20, 395)">
+      <text class="step-code">{ step: 2, title: "Checked what fans of {top} also like",</text>
+      <text x="0" y="22" class="step-code">  asked: "Shared taste tags of people who like {top}",</text>
+      <text x="0" y="44" class="step-code">  found: "N tags — e.g: {tag_names}",</text>
+      <text x="0" y="66" class="step-code">  next: "Now double-checking with {second_place}..." }</text>
+    </g>
+
+    <g transform="translate(20, 500)">
+      <text class="provenance-note">▼ Seeds Step 3 with second place's entity_id</text>
+    </g>
+
+    <!-- Skip handling -->
+    <g transform="translate(20, 530)">
+      <rect x="0" y="0" width="320" height="70" rx="12" fill="#fff8e1" stroke="#f59e0b" stroke-width="1"/>
+      <text x="10" y="20" font-family="Inter, sans-serif" font-size="12" font-weight="600" fill="#f59e0b">Skip Handling</text>
+      <text x="10" y="45" class="step-detail" style="max-width:300px;">If Step 1 returns 0 places → Step 2 status="skip", skip_reason="The first check didn't find places, so this had nothing to start from."</text>
+    </g>
+  </g>
+
+  <!-- Arrow 2 -->
+  <path d="M 860 390 L 900 390" stroke="#c6c6c6" stroke-width="3" fill="none" marker-end="url(#flowArrow)"/>
+  <text x="880" y="380" class="arrow-label">entity_id → signal.interests.entities</text>
+
+  <!-- STEP 3 -->
+  <g transform="translate(920, 130)">
+    <rect x="0" y="0" width="260" height="520" class="step-card"/>
+
+    <rect x="0" y="0" width="260" height="80" rx="24 24 0 0" fill="url(#stepGrad3)"/>
+    <text x="15" y="50" class="step-header" style="font-size:22;">Step 3: Cross-Check</text>
+
+    <g transform="translate(15, 100)">
+      <rect x="0" y="0" width="80" height="26" rx="13" class="step-status-ok" stroke-width="1"/>
+      <text x="40" y="19" class="status-text" fill="#f59e0b" text-anchor="middle">ok</text>
+    </g>
+
+    <text x="15" y="150" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#171717">Question Asked</text>
+    <text x="15" y="175" class="step-detail" style="max-width:230px;">"Same taste question, asked about the second place from Step 1."</text>
+
+    <text x="15" y="215" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#171717">Request Parameters</text>
+    <g transform="translate(15, 235)">
+      <text class="param">GET /v2/insights</text>
+      <text x="0" y="22" class="param">filter.type=urn:tag</text>
+      <text x="0" y="44" class="param">signal.interests.entities={second_entity_id}</text>
+      <text x="0" y="66" class="param">signal.location.query={location_text}</text>
+    </g>
+
+    <text x="15" y="305" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#171717">Overlap Analysis</text>
+    <g transform="translate(15, 325)">
+      <text class="step-detail">tags_step2 ∩ tags_step3</text>
+      <text x="0" y="22" class="step-detail">If overlap: "Pattern holds for two places"</text>
+      <text x="0" y="44" class="step-detail">If none: "Treat taste picture as mixed"</text>
+    </g>
+
+    <text x="15" y="385" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#171717">Persisted as QlooChainStep</text>
+    <g transform="translate(15, 405)">
+      <text class="step-code">{ step: 3, title: "Double-checked with {second}",</text>
+      <text x="0" y="22" class="step-code">  asked: "Same taste question, asked about {second}",</text>
+      <text x="0" y="44" class="step-code">  found: "{N} overlapping tags — e.g: {overlap}",</text>
+      <text x="0" y="66" class="step-code">  top_names: [{tag_names}] }</text>
+    </g>
+
+    <!-- Skip handling -->
+    <g transform="translate(15, 490)">
+      <rect x="0" y="0" width="230" height="80" rx="12" fill="#fff8e1" stroke="#f59e0b" stroke-width="1"/>
+      <text x="10" y="20" font-family="Inter, sans-serif" font-size="12" font-weight="600" fill="#f59e0b">Skip Handling</text>
+      <text x="10" y="45" class="step-detail" style="max-width:210px;">If Step 1 returns <2 places → status="skip", reason="A double-check needs a second place from step 1."</text>
+      <text x="10" y="70" class="step-detail" style="max-width:210px;">If Step 2 failed → status="skip", reason propagates</text>
+    </g>
+  </g>
+
+  <!-- Bottom: Aggregated EvidenceSnapshot -->
+  <g transform="translate(40, 660)">
+    <rect x="0" y="0" width="1120" height="30" rx="8" fill="#ffffff" stroke="#c6c6c6" stroke-width="1"/>
+    <text x="20" y="20" font-family="Inter, sans-serif" font-size="13" font-weight="600" fill="#171717">EvidenceSnapshot (persisted per campaign)</text>
+    <text x="400" y="20" font-family="Inter, sans-serif" font-size="12" fill="#444444">
+      qloo_signals: QlooSignal[] (place-affinity + tag-affinity)  •  qloo_steps: QlooChainStep[] (steps 1-3)  •  geo_venues: GeoVenue[]  •  qloo_status: ok|thin|unavailable  •  geo_status: ok|thin|unavailable
+    </text>
+  </g>
+
+  <!-- Key Principles Box -->
+  <g transform="translate(40, 610)">
+    <rect x="0" y="0" width="560" height="40" rx="8" fill="#fff8e1" stroke="#f59e0b" stroke-width="1"/>
+    <text x="20" y="25" font-family="Inter, sans-serif" font-size="12" font-weight="600" fill="#f59e0b">Key Principles</text>
+    <text x="200" y="25" class="step-detail">
+      • Backend-controlled deterministic chain (not LLM tool)  •  Every step persisted with plain-language reasoning  •  Skip reasons are honest, never invented  •  Status vocabulary: ok | thin | unavailable
+    </text>
+  </g>
+
+  <g transform="translate(40, 560)">
+    <rect x="0" y="0" width="560" height="40" rx="8" fill="#fef2f2" stroke="#ef4444" stroke-width="1"/>
+    <text x="20" y="25" font-family="Inter, sans-serif" font-size="12" font-weight="600" fill="#ef4444">What Qloo Does NOT Provide</text>
+    <text x="200" y="25" class="step-detail">
+      No healthcare facilities  •  No footfall/visitation data  •  No trust scores  •  No epidemiology/diagnoses  •  No health-need data
+    </text>
+  </g>
+</svg>

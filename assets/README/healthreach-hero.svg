@@ -1,0 +1,200 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 1200 600"
+  width="100%"
+  height="auto"
+  role="img"
+  aria-labelledby="hero-title hero-desc"
+  style="background: var(--hr-canvas, #e5e5e5);"
+>
+  <title id="hero-title">HealthReach AI — Plan health outreach that actually reaches people</title>
+  <desc id="hero-desc">
+    Hero illustration showing the HealthReach workflow: local evidence flows into community outreach, producing measurable outcomes.
+    Three connected stages represented as editorial cards with provenance badges.
+  </desc>
+
+  <!-- Definitions -->
+  <defs>
+    <!-- Hatch pattern for illustrative provenance -->
+    <pattern id="hatch" patternUnits="userSpaceOnUse" width="4" height="4">
+      <path d="M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2" stroke="#f59e0b" stroke-width="0.5" fill="none"/>
+    </pattern>
+
+    <!-- Mint gradient for accent elements -->
+    <linearGradient id="mintGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#d1ffca"/>
+      <stop offset="100%" stop-color="#a0e8a8"/>
+    </linearGradient>
+
+    <!-- Voltage gradient -->
+    <linearGradient id="voltageGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#fff100"/>
+      <stop offset="100%" stop-color="#e6d900"/>
+    </linearGradient>
+
+    <!-- Provenance icons -->
+    <symbol id="icon-qloo" viewBox="0 0 24 24">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" fill="currentColor"/>
+    </symbol>
+    <symbol id="icon-geo" viewBox="0 0 24 24">
+      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="currentColor"/>
+    </symbol>
+    <symbol id="icon-ai" viewBox="0 0 24 24">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.95 2.25z" fill="currentColor"/>
+    </symbol>
+    <symbol id="icon-user" viewBox="0 0 24 24">
+      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor"/>
+    </symbol>
+    <symbol id="icon-illustrative" viewBox="0 0 24 24">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.95 2.25z" fill="currentColor"/>
+    </symbol>
+
+    <!-- Arrow connector -->
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#c6c6c6"/>
+    </marker>
+  </defs>
+
+  <!-- Background canvas -->
+  <rect x="0" y="0" width="1200" height="600" fill="var(--hr-canvas, #e5e5e5)"/>
+
+  <!-- Subtle grid pattern (editorial texture) -->
+  <g opacity="0.03">
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#171717" stroke-width="0.5"/>
+    </pattern>
+    <rect x="0" y="0" width="1200" height="600" fill="url(#grid)"/>
+  </g>
+
+  <!-- Main headline -->
+  <text
+    id="main-headline"
+    x="80"
+    y="140"
+    font-family="var(--hr-font-display, 'Barlow Condensed', sans-serif)"
+    font-size="110"
+    font-weight="700"
+    line-height="0.9"
+    letter-spacing="-0.03em"
+    fill="#171717"
+    text-transform="uppercase"
+  >
+    <tspan x="80" dy="0">Plan health</tspan>
+    <tspan x="80" dy="1.05em">outreach that</tspan>
+    <tspan x="80" dy="1.05em">reaches people</tspan>
+  </text>
+
+  <!-- Sub-headline -->
+  <text
+    x="80"
+    y="320"
+    font-family="var(--hr-font-body, 'Inter', sans-serif)"
+    font-size="20"
+    font-weight="400"
+    line-height="1.5"
+    letter-spacing="0"
+    fill="#444444"
+    style="max-width: 520px;"
+  >
+    Cultural intelligence + verified venues → inspectable plans → honest results
+  </text>
+
+  <!-- Three-stage workflow cards -->
+  <g transform="translate(80, 380)">
+    <!-- Stage 1: Local Evidence -->
+    <g class="stage-card" transform="translate(0, 0)">
+      <!-- Card background -->
+      <rect x="0" y="0" width="320" height="180" rx="24" fill="#ffffff" stroke="#c6c6c6" stroke-width="1"/>
+
+      <!-- Provenance badge - Qloo -->
+      <g transform="translate(20, 20)">
+        <rect x="0" y="0" width="100" height="28" rx="4" fill="#4f46e5"/>
+        <text x="32" y="19" font-family="var(--hr-font-body)" font-size="12" font-weight="600" fill="#ffffff" text-anchor="middle">
+          <use href="#icon-qloo" x="4" y="4" width="14" height="14"/> Qloo signal
+        </text>
+      </g>
+
+      <!-- Card title -->
+      <text x="20" y="70" font-family="var(--hr-font-display)" font-size="28" font-weight="700" line-height="1.1" fill="#171717" text-transform="uppercase">Local evidence</text>
+
+      <!-- Card description -->
+      <text x="20" y="105" font-family="var(--hr-font-body)" font-size="15" line-height="1.4" fill="#444444" style="max-width: 280px;">
+        Cultural affinity signals + community venues
+      </text>
+
+      <!-- Provenance chips -->
+      <g transform="translate(20, 145)">
+        <rect x="0" y="0" width="84" height="22" rx="11" fill="#e5e5e5" stroke="#c6c6c6" stroke-width="0.5"/>
+        <text x="42" y="15" font-family="var(--hr-font-body)" font-size="11" font-weight="500" fill="#444444" text-anchor="middle">Qloo + OSM</text>
+      </g>
+    </g>
+
+    <!-- Arrow connector 1 -->
+    <line x1="320" y1="120" x2="380" y2="120" stroke="#c6c6c6" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+    <!-- Stage 2: Community Outreach -->
+    <g class="stage-card" transform="translate(380, 0)">
+      <rect x="0" y="0" width="320" height="180" rx="24" fill="#ffffff" stroke="#c6c6c6" stroke-width="1"/>
+
+      <g transform="translate(20, 20)">
+        <rect x="0" y="0" width="140" height="28" rx="4" fill="url(#mintGrad)"/>
+        <text x="70" y="19" font-family="var(--hr-font-body)" font-size="12" font-weight="600" fill="#171717" text-anchor="middle">
+          AI interpretation
+        </text>
+      </g>
+
+      <text x="20" y="70" font-family="var(--hr-font-display)" font-size="28" font-weight="700" line-height="1.1" fill="#171717" text-transform="uppercase">Community outreach</text>
+
+      <text x="20" y="105" font-family="var(--hr-font-body)" font-size="15" line-height="1.4" fill="#444444" style="max-width: 280px;">
+        Activities, venues, budget, materials, estimates
+      </text>
+
+      <g transform="translate(20, 145)">
+        <rect x="0" y="0" width="84" height="22" rx="11" fill="#e5e5e5" stroke="#c6c6c6" stroke-width="0.5"/>
+        <text x="42" y="15" font-family="var(--hr-font-body)" font-size="11" font-weight="500" fill="#444444" text-anchor="middle">AI estimate</text>
+      </g>
+    </g>
+
+    <!-- Arrow connector 2 -->
+    <line x1="700" y1="120" x2="760" y2="120" stroke="#c6c6c6" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+    <!-- Stage 3: Measurable Outcomes -->
+    <g class="stage-card" transform="translate(760, 0)">
+      <rect x="0" y="0" width="320" height="180" rx="24" fill="#ffffff" stroke="#c6c6c6" stroke-width="1"/>
+
+      <g transform="translate(20, 20)">
+        <rect x="0" y="0" width="100" height="28" rx="4" fill="#10b981"/>
+        <text x="50" y="19" font-family="var(--hr-font-body)" font-size="12" font-weight="600" fill="#ffffff" text-anchor="middle">
+          You provided
+        </text>
+      </g>
+
+      <text x="20" y="70" font-family="var(--hr-font-display)" font-size="28" font-weight="700" line-height="1.1" fill="#171717" text-transform="uppercase">Measurable outcomes</text>
+
+      <text x="20" y="105" font-family="var(--hr-font-body)" font-size="15" line-height="1.4" fill="#444444" style="max-width: 280px;">
+        Planned vs actual — descriptive, not causal
+      </text>
+
+      <g transform="translate(20, 145)">
+        <rect x="0" y="0" width="120" height="22" rx="11" fill="#e5e5e5" stroke="#c6c6c6" stroke-width="0.5"/>
+        <text x="60" y="15" font-family="var(--hr-font-body)" font-size="11" font-weight="500" fill="#444444" text-anchor="middle">Aggregate counts</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- Bottom tagline -->
+  <text
+    x="600"
+    y="580"
+    font-family="var(--hr-font-body)"
+    font-size="14"
+    font-weight="500"
+    fill="#979797"
+    text-anchor="middle"
+  >
+    Every number carries its source — never color alone
+  </text>
+
+  <!-- Voltage accent line -->
+  <line x1="80" y2="588" x2="200" y2="588" stroke="url(#voltageGrad)" stroke-width="3" stroke-linecap="round"/>
+</svg>

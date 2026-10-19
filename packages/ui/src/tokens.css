@@ -1,27 +1,190 @@
 :root {
-  --hr-primary: #6366f1;
-  --hr-primary-hover: #4f46e5;
-  --hr-bg: #fafafa;
-  --hr-surface: #ffffff;
-  --hr-text: #0a0a0a;
-  --hr-text-secondary: #6b6b6b;
-  --hr-border: #e8e8ec;
-  --hr-muted: #9c9c9c;
+  /* ============================================
+     HealthReach Design Tokens
+     Inspired by TasteBound brutalist editorial style
+     Warm canvas, mint/voltage accents, flat design
+     ============================================ */
+
+  /* --- Color Palette --- */
+  /* Canvas & Surfaces */
+  --hr-canvas: #e5e5e5;              /* Warm gray page background */
+  --hr-surface: #ffffff;             /* Card surfaces */
+  --hr-surface-elevated: #f3f3f3;    /* Subtle panels, nav pills */
+  --hr-inverted: #000000;            /* Dark feature blocks */
+
+  /* Text */
+  --hr-text: #171717;                /* Primary text (near-black) */
+  --hr-text-secondary: #444444;      /* Secondary text, labels */
+  --hr-text-muted: #979797;          /* Meta labels, captions */
+  --hr-text-on-inverted: #ffffff;    /* Text on dark surfaces */
+
+  /* Borders & Lines */
+  --hr-border: #c6c6c6;              /* Structural borders (ash) */
+  --hr-border-subtle: #e5e5e5;       /* Hairlines, dividers */
+
+  /* Accent Colors */
+  --hr-mint: #d1ffca;                /* Primary accent - tags, links, highlights */
+  --hr-mint-hover: #b8e8b0;          /* Mint hover state */
+  --hr-voltage: #fff100;             /* Micro accents - email, small highlights */
+  --hr-voltage-hover: #e6d900;       /* Voltage hover */
+
+  /* Status (semantic, used with provenance) */
   --hr-success: #10b981;
   --hr-warning: #f59e0b;
   --hr-error: #ef4444;
-  --hr-brand-mark: #20970b;
-  --hr-radius-card: 12px;
-  --hr-radius-input: 6px;
-  --hr-ring: 0 0 0 3px rgba(99, 102, 241, 0.35);
+
+  /* Provenance Border Colors (never used alone - always with icon+label) */
+  --hr-prov-qloo: #4f46e5;           /* Indigo */
+  --hr-prov-geo: #10b981;            /* Emerald */
+  --hr-prov-ai: #8b5cf6;             /* Violet */
+  --hr-prov-user: #2563eb;           /* Blue */
+  --hr-prov-illustrative: #f59e0b;   /* Amber (dashed) */
+
+  /* Focus Ring */
+  --hr-ring: 0 0 0 3px rgba(23, 23, 23, 0.15);  /* Subtle, works on all surfaces */
+
+  /* --- Typography --- */
+  /* Font Families (system fallbacks for licensing) */
+  --hr-font-display: "Barlow Condensed", "Anton", "Bebas Neue", ui-sans-serif, system-ui, sans-serif;
+  --hr-font-body: "Inter", "Söhne", "Neue Haas Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --hr-font-mono: "JetBrains Mono", "IBM Plex Mono", "Geist Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Font Weights */
+  --hr-weight-regular: 400;
+  --hr-weight-medium: 500;
+  --hr-weight-semibold: 600;
+  --hr-weight-bold: 700;
+
+  /* Type Scale (responsive via clamp) */
+  --hr-text-caption: clamp(11px, 0.75rem, 12px);
+  --hr-text-body-sm: clamp(13px, 0.85rem, 14px);
+  --hr-text-body: clamp(15px, 1rem, 16px);
+  --hr-text-subheading: clamp(17px, 1.1rem, 18px);
+  --hr-text-subheading-lg: clamp(19px, 1.2rem, 20px);
+  --hr-text-heading-sm: clamp(26px, 1.75rem, 28px);
+  --hr-text-heading: clamp(36px, 2.5rem, 40px);
+  --hr-text-heading-lg: clamp(44px, 3rem, 48px);
+  --hr-text-display: clamp(72px, 5rem, 80px);
+  --hr-text-display-xl: clamp(100px, 7rem, 130px);
+
+  /* Line Heights */
+  --hr-leading-tight: 0.9;       /* Display headings */
+  --hr-leading-snug: 1.1;        /* Headings */
+  --hr-leading-normal: 1.25;     /* Subheadings */
+  --hr-leading-relaxed: 1.33;    /* Body text */
+  --hr-leading-loose: 1.6;       /* Captions */
+
+  /* Letter Spacing */
+  --hr-tracking-tight: -0.03em;  /* Display headings */
+  --hr-tracking-normal: -0.01em; /* Body */
+  --hr-tracking-wide: 0.02em;    /* Labels, tags */
+
+  /* --- Spacing --- */
+  --hr-space-unit: 8px;
+  --hr-space-1: 4px;
+  --hr-space-2: 8px;
+  --hr-space-3: 12px;
+  --hr-space-4: 16px;
+  --hr-space-5: 20px;
+  --hr-space-6: 24px;
+  --hr-space-8: 32px;
+  --hr-space-10: 40px;
+  --hr-space-12: 48px;
+  --hr-space-16: 64px;
+  --hr-space-20: 80px;
+  --hr-space-24: 96px;
+
+  /* --- Border Radius --- */
+  --hr-radius-sm: 4px;           /* Buttons */
+  --hr-radius-md: 8px;           /* Inputs, small cards */
+  --hr-radius-lg: 12px;          /* Standard cards */
+  --hr-radius-xl: 24px;          /* Large cards */
+  --hr-radius-2xl: 32px;         /* Feature cards */
+  --hr-radius-3xl: 48px;         /* Nav pills */
+  --hr-radius-4xl: 64px;         /* Tags, hero cards */
+  --hr-radius-full: 9999px;      /* Pills, badges */
+
+  /* Named Radius */
+  --hr-radius-button: var(--hr-radius-sm);
+  --hr-radius-input: var(--hr-radius-md);
+  --hr-radius-card: var(--hr-radius-xl);
+  --hr-radius-card-lg: var(--hr-radius-2xl);
+  --hr-radius-nav-pill: var(--hr-radius-3xl);
+  --hr-radius-tag: var(--hr-radius-4xl);
+
+  /* --- Layout --- */
+  --hr-max-width: 1200px;
+  --hr-section-gap: var(--hr-space-20);    /* 80px */
+  --hr-element-gap: var(--hr-space-6);     /* 24px */
+  --hr-card-padding: var(--hr-space-6);    /* 24px */
+  --hr-nav-height: 8rem;                   /* 128px */
+
+  /* --- Shadows --- */
+  /* Flat design - zero shadows, depth via surface contrast */
+  --hr-shadow-none: none;
+  --hr-shadow-card: none;
+  --hr-shadow-elevated: none;
+
+  /* --- Transitions --- */
+  --hr-transition-fast: 150ms ease;
+  --hr-transition-normal: 200ms ease;
+
+  /* --- Provenance Badge Styles --- */
+  --hr-prov-badge-size: 16px;
+  --hr-prov-border-width: 3px;
 }
 
 .dark {
-  --hr-bg: #0c0c10;
-  --hr-surface: #141419;
-  --hr-text: #f4f4f5;
-  --hr-text-secondary: #b6b6bd;
-  --hr-border: #26262e;
-  --hr-muted: #6e6e78;
-  --hr-ring: 0 0 0 3px rgba(129, 132, 255, 0.45);
+  /* Dark mode preserves warm canvas concept */
+  --hr-canvas: #1a1a1a;              /* Dark warm gray */
+  --hr-surface: #232323;             /* Dark card surface */
+  --hr-surface-elevated: #2a2a2a;    /* Dark subtle panels */
+  --hr-inverted: #fafafa;            /* Light feature blocks */
+
+  --hr-text: #fafafa;                /* Near-white primary */
+  --hr-text-secondary: #c6c6c6;      /* Ash secondary */
+  --hr-text-muted: #979797;          /* Smoke muted */
+  --hr-text-on-inverted: #171717;    /* Dark text on light */
+
+  --hr-border: #444444;              /* Slate borders */
+  --hr-border-subtle: #2a2a2a;       /* Subtle hairlines */
+
+  --hr-mint: #b8e8b0;                /* Slightly muted mint */
+  --hr-mint-hover: #a0d0a8;
+  --hr-voltage: #e6d900;             /* Muted voltage */
+  --hr-voltage-hover: #ccc200;
+
+  --hr-ring: 0 0 0 3px rgba(248, 248, 242, 0.2);
+
+  /* Provenance colors adjusted for dark */
+  --hr-prov-qloo: #818cf8;
+  --hr-prov-geo: #34d399;
+  --hr-prov-ai: #a78bfa;
+  --hr-prov-user: #60a5fa;
+  --hr-prov-illustrative: #fbbf24;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Focus visible */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--hr-ring);
+  border-radius: var(--hr-radius-sm);
+}
+
+/* Selection */
+::selection {
+  background: var(--hr-mint);
+  color: var(--hr-text);
 }
