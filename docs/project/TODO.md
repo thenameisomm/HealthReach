@@ -1,36 +1,8 @@
 # TODO — HealthReach AI
 
-## Phase B: Documentation Foundation (Remaining 15)
+## Phase B: Documentation Foundation ✅ (Complete)
 
-### API (3)
-- [ ] API_CONTRACTS.md — All endpoints with request/response schemas
-- [ ] ERROR_RESPONSES.md — Error codes, messages, HTTP status mapping
-- [ ] API_CHANGE_POLICY.md — Additive changes only, versioning strategy
-
-### Frontend (5)
-- [ ] FRONTEND_ARCHITECTURE.md — Next.js structure, state management, component hierarchy
-- [ ] ROUTES_AND_WORKSPACE.md — Four routes, phase state machine, workspace sections
-- [ ] DESIGN_SYSTEM.md — Tokens, components, provenance UI, accessibility
-- [ ] ACCESSIBILITY.md — WCAG compliance, keyboard, screen reader, reduced motion
-- [ ] VISUALIZATION_GUIDELINES.md — Chart library, map/list pairing, export formats
-
-### Quality (4)
-- [ ] ACCEPTANCE_CRITERIA.md — Testable criteria for all requirements (FR/NFR)
-- [ ] TEST_STRATEGY.md — Unit, integration, E2E, mock strategy, CI
-- [ ] MANUAL_QA.md — Browser QA script, viewports, checklists
-- [ ] RELEASE_CHECKLIST.md — Pre-release validation steps
-
-### Operations (5)
-- [ ] GETTING_STARTED.md — Prerequisites, install, run, verify
-- [ ] CONFIGURATION.md — All env vars, defaults, validation
-- [ ] DEVELOPMENT_WORKFLOW.md — Commands, branching, commits, PR process
-- [ ] RUNBOOK.md — Common operations, debugging, incidents
-- [ ] TROUBLESHOOTING.md — Common issues and resolutions
-
-### Project (3)
-- [ ] DECISIONS_LOG.md — ADR index with links
-- [ ] RISKS_AND_MITIGATIONS.md — Technical, product, external risks
-- [ ] CHANGELOG.md — Version history
+All 43 documentation files created and cross-referenced.
 
 ---
 
@@ -100,10 +72,10 @@
 
 ## Phase G: Integration & Merge
 
-- [ ] Create integration/healthreach-redesign branch
-- [ ] Merge feature/documentation-system into integration branch
-- [ ] Merge feature/readme-redesign into integration branch
-- [ ] Merge feature/feature-specifications into integration branch
+- [x] Create integration/healthreach-redesign branch
+- [x] Merge feature/documentation-system into integration branch
+- [x] Merge feature/api-contracts into integration branch
+- [ ] Merge feature/frontend-quality-ops into integration branch
 - [ ] Resolve conflicts carefully
 - [ ] Run all tests after integration
 
