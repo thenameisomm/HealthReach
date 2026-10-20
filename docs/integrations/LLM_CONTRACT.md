@@ -247,4 +247,4 @@ LLM_MAX_RETRIES: int = 1        # Repair retry only
 
 ---
 
-*Related: [Agent Orchestration](architecture/AGENT_ORCHESTRATION.md) · [Qloo Agent Chain](QLOO_AGENT_CHAIN.md) · [API Contracts](api/API_CONTRACTS.md)*
+*Related: [Agent Orchestration](../architecture/AGENT_ORCHESTRATION.md) · [Qloo Agent Chain](QLOO_AGENT_CHAIN.md) · [API Contracts](../api/API_CONTRACTS.md)*

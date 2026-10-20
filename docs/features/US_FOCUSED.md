@@ -401,4 +401,4 @@ All demo responses include `provenance: "illustrative"` on every value.
 
 ---
 
-*Related: [LocationAutocomplete v2](LOCATION_AUTOCOMPLETE_V2.md) · [ClickMap v2](CLICK_MAP_V2.md) · [Demo Data](apps/api/app/services/demo_data.py)*
+*Related: [LocationAutocomplete v2](LOCATION_AUTOCOMPLETE_V2.md) · [ClickMap v2](CLICK_MAP_V2.md) · [Demo Data](../../apps/api/app/services/demo_data.py)*

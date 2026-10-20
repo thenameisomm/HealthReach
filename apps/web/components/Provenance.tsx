@@ -49,7 +49,24 @@ export function SourceLegend() {
   );
 }
 
-export function DemoBanner() {
+export function DemoBanner({
+  scenario = "kothrud",
+  currency = "INR",
+  budget,
+}: {
+  scenario?: "kothrud" | "us";
+  currency?: "USD" | "INR";
+  budget?: number;
+}) {
+  const place = scenario === "us" ? "East Austin, TX (US)" : "Kothrud, Pune (India)";
+  const money =
+    budget == null
+      ? ""
+      : ` · ${new Intl.NumberFormat(currency === "USD" ? "en-US" : "en-IN", {
+          style: "currency",
+          currency,
+          maximumFractionDigits: 0,
+        }).format(budget)}`;
   return (
     <div
       className="demo-banner"
@@ -58,8 +75,9 @@ export function DemoBanner() {
     >
       <div className="mx-auto max-w-[1280px] px-6 py-2 text-[13px] font-medium">
         <span aria-hidden="true">◇ </span>
-        Sample data for demonstration — these numbers and places are
-        illustrations, not real measurements.
+        Sample data — {place}
+        {money} · these numbers and places are illustrations, not real
+        measurements.
       </div>
     </div>
   );

@@ -1,13 +1,25 @@
 "use client";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   api,
   friendlyError,
   type Analytics,
   type CampaignDetail,
+  type Currency,
   type Plan,
+  type QlooProgress,
 } from "@/lib/api";
+import {
+  activityCost,
+  briefBudget,
+  briefCurrency,
+  budgetLineAmount,
+  formatDistance,
+  formatMoney,
+  planBudget,
+  planCurrency,
+} from "@/lib/format";
 import {
   ProvenanceBadge,
   DemoBanner,
@@ -15,6 +27,10 @@ import {
 } from "@/components/Provenance";
 import { InfoTip } from "@/components/InfoTip";
 import { MapView } from "@/components/MapView";
+import { QlooCallCounter } from "@/components/QlooCallCounter";
+import { ResultsMap } from "@/components/ResultsMap";
+import { InteractiveCharts } from "@/components/charts/InteractiveCharts";
+import { AnalysisViews } from "@/components/AnalysisViews";
 import { EmptyState, ProgressStatus, Skeleton } from "@/components/States";
 
 type Phase =
@@ -28,7 +44,7 @@ type Phase =
 interface ResultsForm {
   registrations: number;
   attendance: number;
-  spend_inr: number;
+  spend: number;
   engagement: number;
   notes: string;
 }
@@ -49,9 +65,9 @@ const RESULT_FIELDS: {
     help: "How many people actually showed up.",
   },
   {
-    key: "spend_inr",
-    label: "Spend (₹)",
-    help: "Total rupees actually spent.",
+    key: "spend",
+    label: "Spend",
+    help: "Total actually spent, in the same currency as the brief.",
   },
   {
     key: "engagement",
@@ -89,17 +105,25 @@ const OBJECTIVE_LABELS: Record<string, string> = {
 
 /**
  * Translate backend service notes into plain words. Backend notes may contain
- * technical phrasing (e.g. missing-key messages); stored snapshots keep the
- * original, so translation happens here at display time.
+ * technical phrasing (missing-key setups or older stored notes that include
+ * exception class names); translation happens here at display time.
  */
 function plainServiceNote(note: string): string {
   if (/API_KEY/i.test(note))
     return "This source isn't set up on this server yet (a setup step for whoever runs the server — nothing you did wrong).";
-  return note;
+  if (/key was rejected/i.test(note))
+    return "The configured key was rejected by this source, so it could not be asked (a setup step for whoever owns the key — nothing you did wrong).";
+  return note
+    .replace(/place lookup issue:\s*/gi, "")
+    .replace(
+      /\b(?:HTTPStatusError|ConnectError|ConnectTimeout|ReadTimeout|ReadError|TimeoutException|RemoteProtocolError)\b/g,
+      "one lookup step had trouble",
+    );
 }
 
 function isSetupIssue(note: string): boolean {
-  return /API_KEY/i.test(note);
+  // Missing keys and rejected keys both call for a setup fix, not a retry.
+  return /API_KEY|key was rejected/i.test(note);
 }
 
 export default function CampaignPage({ params }: { params: { id: string } }) {
@@ -111,21 +135,48 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
   const [resultsForm, setResultsForm] = useState<ResultsForm>({
     registrations: 0,
     attendance: 0,
-    spend_inr: 0,
+    spend: 0,
     engagement: 0,
     notes: "",
   });
+  const [qlooProgress, setQlooProgress] = useState<QlooProgress | null>(null);
+  const [evidenceActive, setEvidenceActive] = useState(false);
   const [savedMsg, setSavedMsg] = useState("");
+  const [savingResults, setSavingResults] = useState(false);
+  const [planMsg, setPlanMsg] = useState("");
   const [analytics, setAnalytics] = useState<{
     hasResults: boolean;
     analytics?: Analytics;
   } | null>(null);
+  const [analyticsError, setAnalyticsError] = useState(false);
+  const prefilledResults = useRef(false);
 
   const refresh = useCallback(async () => {
     try {
       const d = await api.getCampaign(id);
       setDetail(d);
-      const a = await api.analytics(id).catch(() => null);
+      setError("");
+      if (d.results && !prefilledResults.current) {
+        const r = d.results as Record<string, unknown>;
+        setResultsForm({
+          registrations: Number(r.registrations ?? 0),
+          attendance: Number(r.attendance ?? 0),
+          spend: Number(r.spend ?? r.spend_usd ?? r.spend_inr ?? 0),
+          engagement: Number(r.engagement ?? 0),
+          notes: String(r.notes ?? ""),
+        });
+        prefilledResults.current = true;
+      }
+      const a = await api
+        .analytics(id)
+        .then((data) => {
+          setAnalyticsError(false);
+          return data;
+        })
+        .catch(() => {
+          setAnalyticsError(true);
+          return null;
+        });
       if (a) setAnalytics(a);
       if (!d.evidence) setPhase("brief");
       else if (!d.plans.length) setPhase("evidence");
@@ -143,21 +194,32 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
   async function gatherEvidence() {
     setPhase("evidence-loading");
     setError("");
+    setQlooProgress(null);
+    setEvidenceActive(true);
     try {
       await api.buildEvidence(id);
       await refresh();
     } catch (e) {
       setError(friendlyError(e));
       setPhase("brief");
+    } finally {
+      setEvidenceActive(false);
     }
   }
 
   async function generatePlan(section?: string) {
     setPlanBusy(section ?? "full");
-    if (!section) setPhase("plan-loading");
+    if (!section) {
+      setPhase("plan-loading");
+      setPlanMsg("");
+    }
     setError("");
     try {
-      await api.buildPlan(id, section);
+      const built = await api.buildPlan(id, section);
+      if (section)
+        setPlanMsg(
+          `Section refreshed — saved as version ${built.version}. Refreshes are rebuilt from the standard template, so wording may look familiar.`,
+        );
       await refresh();
     } catch (e) {
       setError(friendlyError(e));
@@ -169,27 +231,67 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
 
   async function saveResults(ev: React.FormEvent) {
     ev.preventDefault();
+    if (savingResults) return;
     setSavedMsg("");
+    setError("");
+    setSavingResults(true);
+    const resultsCurrency = detail
+      ? briefCurrency(detail.campaign.brief)
+      : "USD";
     try {
-      await api.saveResults(id, resultsForm);
+      await api.saveResults(id, {
+        registrations: resultsForm.registrations,
+        attendance: resultsForm.attendance,
+        engagement: resultsForm.engagement,
+        notes: resultsForm.notes,
+        ...(resultsCurrency === "USD"
+          ? { spend_usd: resultsForm.spend }
+          : { spend_inr: resultsForm.spend }),
+      });
       setSavedMsg("Results saved. The comparison below is now up to date.");
+      prefilledResults.current = true;
       await refresh();
     } catch (e) {
       setError(friendlyError(e));
+    } finally {
+      setSavingResults(false);
     }
   }
 
-  if (phase === "loading" || !detail) {
+  if (!detail) {
     return (
-      <div
-        className="mx-auto max-w-[1280px] px-6 py-10"
-        aria-label="Loading campaign"
-      >
-        <Skeleton className="h-10 w-2/3" />
-        <div className="mt-4 grid gap-3">
-          <Skeleton className="h-32" />
-          <Skeleton className="h-32" />
-        </div>
+      <div className="mx-auto max-w-[760px] px-6 py-10">
+        {error ? (
+          <EmptyState
+            title="We couldn't open this campaign"
+            body={error}
+            action={
+              <span className="flex flex-wrap justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={refresh}
+                  className="btn-primary px-5 py-2.5"
+                >
+                  Try again
+                </button>
+                <Link
+                  href="/campaigns"
+                  className="rounded-input border border-line px-5 py-2.5 font-medium"
+                >
+                  Back to campaigns
+                </Link>
+              </span>
+            }
+          />
+        ) : (
+          <div aria-label="Loading campaign">
+            <Skeleton className="h-10 w-2/3" />
+            <div className="mt-4 grid gap-3">
+              <Skeleton className="h-32" />
+              <Skeleton className="h-32" />
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -197,6 +299,8 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
   const { campaign, evidence, plans } = detail;
   const plan: Plan | undefined = plans[plans.length - 1];
   const isDemo = campaign.mode === "demo";
+  const currency = briefCurrency(campaign.brief);
+  const budget = briefBudget(campaign.brief);
   const hasResults = analytics?.hasResults === true;
   const steps = ["Your brief", "Local information", "Outreach plan", "Results"];
   const currentStep = !evidence ? 1 : !plan ? 2 : !hasResults ? 3 : 4;
@@ -207,7 +311,13 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
 
   return (
     <div>
-      {isDemo && <DemoBanner />}
+      {isDemo && (
+        <DemoBanner
+          scenario={campaign.demo_scenario ?? "kothrud"}
+          currency={currency}
+          budget={budget}
+        />
+      )}
       <div className="mx-auto max-w-[1280px] px-6 py-8">
         <ProgressStatus steps={steps} current={currentStep} />
 
@@ -235,7 +345,7 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
           <div className="flex gap-2">
             <dt className="text-secondary">Budget:</dt>
             <dd className="font-medium">
-              ₹{campaign.brief.budget_inr.toLocaleString("en-IN")}
+              {formatMoney(budget, currency)}
             </dd>
           </div>
           <div className="flex gap-2">
@@ -292,21 +402,20 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
           <h2 id="evidence" className="font-display text-[24px] font-bold">
             Local information
           </h2>
-          <p className="mt-1 max-w-[72ch] text-[14px] text-secondary">
-            What we found about your area, and where each fact came from. Read
-            this before the plan — it explains what the suggestions are built
-            on.
+          <p className="mt-1 max-w-[60ch] text-[14px] text-secondary">
+            What we found about your area — and where each fact came from.
+            Read before the plan.
           </p>
           {!evidence && phase !== "evidence-loading" && (
             <div className="mt-3">
               <EmptyState
                 title="No local information yet"
-                body="We'll look up two things: nearby places you could use (from a public map directory), and hints about message styles that feel familiar locally. If a source is unavailable, we'll say so and continue without inventing anything."
+                body="We'll look up nearby places and hints about familiar message styles. If a source is unavailable, we'll say so — never invent."
                 action={
                   <button
                     type="button"
                     onClick={gatherEvidence}
-                    className="btn-primary px-5 py-2.5"
+                    className="btn-primary"
                   >
                     Look up local information
                   </button>
@@ -323,10 +432,16 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
               <Skeleton className="h-24" />
               <Skeleton className="h-40" />
               <p className="text-[14px] text-secondary">
-                Looking up nearby places and familiar message styles for your
-                area… this can take up to half a minute. What you saved is safe.
+                Looking things up… up to half a minute. What you saved is safe.
               </p>
             </div>
+          )}
+          {(phase === "evidence-loading" || evidenceActive) && (
+            <QlooCallCounter
+              campaignId={id}
+              active={evidenceActive}
+              initial={qlooProgress}
+            />
           )}
           {evidence && (
             <div className="mt-4 grid gap-4 lg:grid-cols-2">
@@ -336,7 +451,7 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
                     id="qloo-h"
                     className="font-display text-[18px] font-semibold"
                   >
-                    What feels familiar locally
+                    🧭 What feels familiar locally
                   </h3>
                   <ProvenanceBadge kind={isDemo ? "illustrative" : "qloo"} />
                   <InfoTip label="familiarity hints">
@@ -346,9 +461,52 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
                   </InfoTip>
                 </div>
                 <p className="mt-2 text-[13px] text-secondary">
-                  Use these to phrase posters and messages in a familiar way —
-                  not to decide who needs care.
+                  For phrasing posters and messages in a familiar way only.
                 </p>
+                {(evidence.qloo_steps ?? []).length > 0 && (
+                  <div
+                    className="mt-3 rounded-[12px] border border-line p-3"
+                    aria-label="How these hints were built: a chain of linked Qloo lookups"
+                  >
+                    <p className="text-[13px] font-medium">
+                      Built from{" "}
+                      {(evidence.qloo_steps ?? []).filter((s) => s.status === "ok").length}{" "}
+                      linked Qloo lookups — each one asks the next question:
+                    </p>
+                    <ol className="mt-2 space-y-2">
+                      {(evidence.qloo_steps ?? []).map((st) => (
+                        <li key={st.step} className="flex items-start gap-2">
+                          <span
+                            aria-hidden="true"
+                            className="step-dot mt-0.5"
+                          >
+                            {st.step}
+                          </span>
+                          <span className="text-[13px]">
+                            {st.status === "ok" ? (
+                              <>
+                                <span className="font-medium">{st.title}</span>
+                                <span className="block text-[12px] text-secondary">
+                                  {st.found}
+                                  {st.next ? ` → ${st.next}` : ""}
+                                </span>
+                              </>
+                            ) : (
+                              <>
+                                <span className="font-medium">
+                                  {st.title} — skipped
+                                </span>
+                                <span className="block text-[12px] text-secondary">
+                                  {st.skip_reason}
+                                </span>
+                              </>
+                            )}
+                          </span>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
                 {evidence.qloo_status !== "ok" && (
                   <p
                     role="status"
@@ -418,13 +576,12 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
                     id="geo-h"
                     className="font-display text-[18px] font-semibold"
                   >
-                    Places you could check in person
+                    📍 Places you could check in person
                   </h3>
                   <ProvenanceBadge kind={isDemo ? "illustrative" : "geo"} />
                 </div>
                 <p className="mt-2 text-[13px] text-secondary">
-                  Real places from a public map directory. A listed place is a
-                  candidate — visit it and confirm permission, space and access
+                  Real places from a public map. Each is a candidate — visit
                   before planning around it.
                 </p>
                 {campaign.geocode && (
@@ -436,7 +593,23 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
                     />
                   </div>
                 )}
-                {evidence.geo_note && (
+                {evidence.geo_note && evidence.geo_status === "unavailable" && (
+                  <p
+                    role="status"
+                    className="mt-2 rounded-input border border-warning p-3 text-[13px]"
+                  >
+                    This source is currently unavailable:{" "}
+                    {evidence.geo_note}{" "}
+                    <button
+                      type="button"
+                      onClick={gatherEvidence}
+                      className="link"
+                    >
+                      Try again
+                    </button>
+                  </p>
+                )}
+                {evidence.geo_note && evidence.geo_status !== "unavailable" && (
                   <p className="mt-2 text-[13px] text-secondary">
                     {evidence.geo_note}{" "}
                     {evidence.geo_venues.length === 0 && (
@@ -464,6 +637,9 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
                           {v.category}
                           {v.address ? ` · ${v.address}` : ""}
                         </span>
+                        <span className="block text-[12px] text-secondary">
+                          {formatDistance(v.distance_m)} away
+                        </span>
                       </span>
                       <span className="prov prov-geo">
                         <span aria-hidden="true">⚑</span> Visit and verify
@@ -471,12 +647,13 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
                       </span>
                     </li>
                   ))}
-                  {evidence.geo_venues.length === 0 && (
-                    <li className="text-[14px] text-secondary">
-                      No mapped places in this radius — consider the
-                      organizer&apos;s own site, after checking access.
-                    </li>
-                  )}
+                  {evidence.geo_venues.length === 0 &&
+                    evidence.geo_status !== "unavailable" && (
+                      <li className="text-[14px] text-secondary">
+                        No mapped places in this radius — consider the
+                        organizer&apos;s own site, after checking access.
+                      </li>
+                    )}
                 </ul>
               </article>
             </div>
@@ -488,21 +665,20 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
           <h2 id="plan" className="font-display text-[24px] font-bold">
             Your outreach plan (draft to review)
           </h2>
-          <p className="mt-1 max-w-[72ch] text-[14px] text-secondary">
-            Suggested activities, places, a budget split and draft messages —
-            each linked to the information behind it. Nothing here is final:
-            review everything with your team before using it.
+          <p className="mt-1 max-w-[60ch] text-[14px] text-secondary">
+            Every part links to the info behind it. Nothing is final — review
+            with your team first.
           </p>
           {!plan && phase !== "plan-loading" && evidence && (
             <div className="mt-3">
               <EmptyState
                 title="Ready when you are"
-                body="The draft lists what to do, where to consider doing it, how your budget is divided, and what to say — with the basis shown for every estimate."
+                body="What to do, where, how the money splits, and what to say — with the basis shown for every estimate."
                 action={
                   <button
                     type="button"
                     onClick={() => generatePlan()}
-                    className="btn-primary px-5 py-2.5"
+                    className="btn-primary"
                   >
                     Create outreach plan
                   </button>
@@ -522,8 +698,7 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
                 <Skeleton className="h-24" />
               </div>
               <p className="mt-2 text-[14px] text-secondary">
-                Drafting activities, checking the budget adds up, and linking
-                each suggestion to its source…
+                Drafting and checking the budget adds up…
               </p>
             </div>
           )}
@@ -550,6 +725,11 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
                     : "put together from a standard planning template using the information above — no AI model was involved."}
                 </p>
               </div>
+              {planMsg && (
+                <p role="status" className="text-[14px] text-secondary">
+                  {planMsg}
+                </p>
+              )}
 
               <div
                 className="card border-warning p-5"
@@ -562,21 +742,12 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
                   Before you use this plan, check these
                 </h3>
                 <ul className="mt-2 list-disc space-y-1 pl-5 text-[14px] text-secondary">
+                  <li>Visit each place: confirm permission, space, access.</li>
                   <li>
-                    Visit each suggested place and confirm permission, space,
-                    accessibility and facilities.
+                    A health professional reviews every poster, message, script.
                   </li>
-                  <li>
-                    Have a qualified health professional review every poster,
-                    message and script.
-                  </li>
-                  <li>
-                    Treat estimated numbers as planning guesses, not promises of
-                    turnout.
-                  </li>
-                  <li>
-                    Confirm the budget split with whoever controls the money.
-                  </li>
+                  <li>Numbers are guesses — not promises of turnout.</li>
+                  <li>Confirm the money split with whoever controls it.</li>
                 </ul>
               </div>
 
@@ -621,7 +792,11 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
                           Based on:{" "}
                           {a.evidence_refs.map(readableRef).join(" · ") ||
                             "your brief"}{" "}
-                          · Costs ₹{a.cost_inr.toLocaleString("en-IN")}
+                          · Costs{" "}
+                          {formatMoney(
+                            activityCost(a, planCurrency(plan)),
+                            planCurrency(plan),
+                          )}
                         </p>
                       </li>
                     ))}
@@ -673,7 +848,7 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
                     id="budget-h"
                     className="font-display text-[18px] font-semibold"
                   >
-                    Budget — ₹{plan.budget_total_inr.toLocaleString("en-IN")}
+                    Budget — {formatMoney(planBudget(plan), planCurrency(plan))}
                   </h3>
                   <button
                     type="button"
@@ -688,15 +863,16 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
                 </div>
                 <ul className="mt-3 space-y-2" aria-label="Budget allocation">
                   {plan.budget.map((b, i) => {
+                    const amount = budgetLineAmount(b, planCurrency(plan));
                     const pct = Math.round(
-                      (b.amount_inr / Math.max(1, plan.budget_total_inr)) * 100,
+                      (amount / Math.max(1, planBudget(plan))) * 100,
                     );
                     return (
                       <li key={i}>
                         <div className="flex justify-between text-[14px]">
                           <span>{b.label}</span>
                           <span className="font-mono">
-                            ₹{b.amount_inr.toLocaleString("en-IN")} · {pct}%
+                            {formatMoney(amount, planCurrency(plan))} · {pct}%
                           </span>
                         </div>
                         <div
@@ -714,10 +890,14 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
                   })}
                 </ul>
                 <p className="mt-2 text-[13px] text-secondary">
-                  Total of the parts: ₹
-                  {plan.budget
-                    .reduce((s, b) => s + b.amount_inr, 0)
-                    .toLocaleString("en-IN")}{" "}
+                  Total of the parts:{" "}
+                  {formatMoney(
+                    plan.budget.reduce(
+                      (sum, b) => sum + budgetLineAmount(b, planCurrency(plan)),
+                      0,
+                    ),
+                    planCurrency(plan),
+                  )}{" "}
                   — exactly matches the budget you set.
                 </p>
               </article>
@@ -764,7 +944,7 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
                   <button
                     type="button"
                     onClick={() => window.print()}
-                    className="mt-3 rounded-input border border-line px-4 py-2 text-[14px] font-medium"
+                    className="btn-secondary mt-3"
                   >
                     Print / save PDF (keeps source labels)
                   </button>
@@ -823,13 +1003,24 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
           <h2 id="results" className="font-display text-[24px] font-bold">
             After the camp: enter your results
           </h2>
-          <p className="mt-1 max-w-[72ch] text-[14px] text-secondary">
-            Overall totals only — never names or patient details. We&apos;ll
-            show your plan next to what happened, as a straightforward
-            comparison. Doing better (or worse) than planned doesn&apos;t prove
-            any single suggestion caused it.
+          <p className="mt-1 max-w-[60ch] text-[14px] text-secondary">
+            Overall totals only — never names or patient details. You&apos;ll
+            see plan vs actual side by side.
           </p>
-          {!hasResults && (
+          {analyticsError && (
+            <p
+              role="status"
+              className="mt-3 rounded-input border border-warning p-3 text-[13px]"
+            >
+              The planned-vs-actual comparison couldn&apos;t be loaded just
+              now.
+              {detail.results ? " Your saved results are safe." : ""}{" "}
+              <button type="button" onClick={refresh} className="link">
+                Reload
+              </button>
+            </p>
+          )}
+          {!hasResults && !analyticsError && (
             <div className="mt-3">
               <EmptyState
                 title="No results yet — that is expected"
@@ -849,6 +1040,7 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
                   className="mb-1 block text-[14px] font-medium"
                 >
                   {label}
+                  {key === "spend" ? ` (${currency === "USD" ? "$" : "₹"})` : ""}
                 </label>
                 <input
                   id={`r-${key}`}
@@ -861,7 +1053,7 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
                       [key]: Number(e.target.value),
                     }))
                   }
-                  className="w-full rounded-input border border-line bg-surface px-3 py-2"
+                  className="w-full rounded-input border border-line bg-surface px-3 py-2.5"
                   aria-describedby={`r-${key}-help`}
                 />
                 <p
@@ -885,11 +1077,12 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
               <input
                 id="r-notes"
                 value={resultsForm.notes}
+                maxLength={1000}
                 onChange={(e) =>
                   setResultsForm((f) => ({ ...f, notes: e.target.value }))
                 }
                 placeholder="e.g. weekend turnout was strong"
-                className="w-full rounded-input border border-line bg-surface px-3 py-2"
+                className="w-full rounded-input border border-line bg-surface px-3 py-2.5"
               />
             </div>
             {attendanceLooksOff && (
@@ -907,104 +1100,41 @@ export default function CampaignPage({ params }: { params: { id: string } }) {
               </p>
             )}
             <div className="sm:col-span-2">
-              <button type="submit" className="btn-primary px-5 py-2.5">
-                Save results
+              <button
+                type="submit"
+                disabled={savingResults}
+                className="btn-primary disabled:opacity-60"
+              >
+                {savingResults ? "Saving…" : "Save results"}
               </button>
             </div>
           </form>
           {hasResults && analytics?.analytics && (
-            <div className="card mt-4 p-5" aria-labelledby="comp-h">
-              <h3
-                id="comp-h"
-                className="font-display text-[18px] font-semibold"
-              >
-                Planned vs actual
-              </h3>
-              <table className="mt-3 w-full text-[14px]">
-                <thead>
-                  <tr className="text-left text-secondary">
-                    <th className="py-1" scope="col">
-                      Measure
-                    </th>
-                    <th scope="col">Planned</th>
-                    <th scope="col">Actual</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-t border-line">
-                    <td className="py-2">Registrations</td>
-                    <td>{analytics.analytics.planned_registrations}</td>
-                    <td className="font-medium">
-                      {analytics.analytics.actual_registrations}
-                    </td>
-                  </tr>
-                  <tr className="border-t border-line">
-                    <td className="py-2">Attendance</td>
-                    <td>{analytics.analytics.planned_attendance}</td>
-                    <td className="font-medium">
-                      {analytics.analytics.actual_attendance}
-                    </td>
-                  </tr>
-                  <tr className="border-t border-line">
-                    <td className="py-2">Spend</td>
-                    <td>
-                      ₹
-                      {analytics.analytics.planned_spend_inr.toLocaleString(
-                        "en-IN",
-                      )}
-                    </td>
-                    <td className="font-medium">
-                      ₹
-                      {analytics.analytics.actual_spend_inr.toLocaleString(
-                        "en-IN",
-                      )}
-                    </td>
-                  </tr>
-                  <tr className="border-t border-line">
-                    <td className="py-2">Cost per registration</td>
-                    <td>—</td>
-                    <td>
-                      {analytics.analytics.cost_per_registration != null
-                        ? `₹${analytics.analytics.cost_per_registration}`
-                        : "Not calculable — needs at least 1 registration"}
-                    </td>
-                  </tr>
-                  <tr className="border-t border-line">
-                    <td className="py-2">Attendance rate</td>
-                    <td>—</td>
-                    <td>
-                      {analytics.analytics.attendance_rate != null
-                        ? `${Math.round(analytics.analytics.attendance_rate * 100)}%`
-                        : "Not calculable — needs at least 1 registration"}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <details className="mt-3">
-                <summary className="link cursor-pointer text-[13px]">
-                  What do these numbers mean?
-                </summary>
-                <ul className="mt-2 list-disc space-y-1 pl-5 text-[13px] text-secondary">
-                  <li>
-                    Cost per registration = total spend ÷ registrations. Lower
-                    means each sign-up cost less.
-                  </li>
-                  <li>
-                    Attendance rate = attendance ÷ registrations. It shows what
-                    share of registered people showed up.
-                  </li>
-                  <li>
-                    A blank (“not calculable”) simply means the totals needed
-                    for the maths weren&apos;t entered yet.
-                  </li>
-                </ul>
-              </details>
-              <p className="mt-2 text-[13px] text-secondary">
+            <div className="mt-4 space-y-4">
+              <InteractiveCharts
+                analytics={analytics.analytics}
+                plan={plan}
+                currency={currency}
+                illustrative={isDemo}
+              />
+              {campaign.geocode && evidence && (
+                <div className="card p-5">
+                  <ResultsMap
+                    lat={campaign.geocode.lat}
+                    lon={campaign.geocode.lon}
+                    venues={evidence.geo_venues}
+                    demonstration={isDemo}
+                  />
+                </div>
+              )}
+              <p className="text-[13px] text-secondary">
                 {analytics.analytics.note}
               </p>
             </div>
           )}
         </section>
+
+        <AnalysisViews detail={detail} />
       </div>
     </div>
   );

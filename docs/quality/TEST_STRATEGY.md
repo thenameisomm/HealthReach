@@ -317,7 +317,7 @@ Before any release:
 2. ✅ `pnpm typecheck` clean
 3. ✅ `pnpm lint` clean
 4. ✅ `pnpm build` succeeds
-5. ✅ `pytest -m "not live"` all pass (34+ tests)
+5. ✅ `pytest -m "not live"` all pass (45 tests)
 6. ✅ Manual QA: desktop (1280×900) + mobile (390×844)
 7. ✅ Accessibility: axe-core zero violations
 8. ✅ No secrets in build output
@@ -329,7 +329,7 @@ Before any release:
 
 | Metric | Target | Current |
 |---|---|---|
-| Backend test count | ≥ 40 | 34 |
+| Backend test count | ≥ 40 | 45 |
 | Backend coverage | ≥ 90% | ~85% |
 | Frontend type errors | 0 | 0 |
 | ESLint errors | 0 | 0 |

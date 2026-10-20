@@ -280,4 +280,4 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 ---
 
-*Related: [Qloo Integration](QLOO_INTEGRATION.md) · [OSM Integration](OSM_INTEGRATION.md) · [Geocoding & Location](GEOCODING_AND_LOCATION.md) · [Security & Privacy](architecture/SECURITY_AND_PRIVACY.md)*
+*Related: [Qloo Integration](QLOO_INTEGRATION.md) · [OSM Integration](OSM_INTEGRATION.md) · [Geocoding & Location](GEOCODING_AND_LOCATION.md) · [Security & Privacy](../architecture/SECURITY_AND_PRIVACY.md)*

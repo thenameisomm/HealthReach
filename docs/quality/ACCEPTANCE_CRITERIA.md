@@ -241,4 +241,4 @@ Each criterion has a unique ID, maps to requirements, and defines testable condi
 
 ---
 
-*Related: [Product Requirements](product/PRODUCT_REQUIREMENTS.md) · [Test Strategy](TEST_STRATEGY.md) · [Manual QA](MANUAL_QA.md)*
+*Related: [Product Requirements](../product/PRODUCT_REQUIREMENTS.md) · [Test Strategy](TEST_STRATEGY.md) · [Manual QA](MANUAL_QA.md)*

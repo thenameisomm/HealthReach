@@ -1,8 +1,10 @@
 "use client";
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { api, friendlyError } from "@/lib/api";
+import { api, friendlyError, type Currency } from "@/lib/api";
 import { ProvenanceBadge } from "@/components/Provenance";
+import { LocationAutocomplete } from "@/components/LocationAutocomplete";
+import { ClickMap } from "@/components/ClickMap";
 
 const OBJECTIVES = [
   {
@@ -33,7 +35,8 @@ const EMPTY = {
   audience_age_min: 30,
   audience_age_max: 60,
   audience_notes: "",
-  budget_inr: 10000,
+  budget: 5000,
+  currency: "USD" as Currency,
   duration_days: 7,
   objective: "attendance",
 };
@@ -47,6 +50,8 @@ function NewCampaignInner() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [prefillNote, setPrefillNote] = useState("");
+  const [pickedLat, setPickedLat] = useState<number | null>(null);
+  const [pickedLon, setPickedLon] = useState<number | null>(null);
 
   useEffect(() => {
     if (!fromId) return;
@@ -59,7 +64,13 @@ function NewCampaignInner() {
           audience_age_min: d.campaign.brief.audience_age_min,
           audience_age_max: d.campaign.brief.audience_age_max,
           audience_notes: d.campaign.brief.audience_notes,
-          budget_inr: d.campaign.brief.budget_inr,
+          budget:
+            d.campaign.brief.currency === "INR"
+              ? (d.campaign.brief.budget_inr ?? 10000)
+              : (d.campaign.brief.budget_usd ?? 5000),
+          currency:
+            d.campaign.brief.currency ??
+            (d.campaign.brief.budget_usd != null ? "USD" : "INR"),
           duration_days: d.campaign.brief.duration_days,
           objective: d.campaign.brief.objective,
         });
@@ -81,7 +92,7 @@ function NewCampaignInner() {
       if (k === "location_text") delete next.location_text;
       if (k === "audience_age_min" || k === "audience_age_max")
         delete next.audience_age;
-      if (k === "budget_inr") delete next.budget_inr;
+      if (k === "budget" || k === "currency") delete next.budget;
       if (k === "duration_days") delete next.duration_days;
       return next;
     });
@@ -94,7 +105,7 @@ function NewCampaignInner() {
         "Tell us the topic — at least 3 characters, e.g. “Free diabetes screening camp”.";
     if (form.location_text.trim().length < 2)
       e.location_text =
-        "Enter a neighbourhood and city, e.g. “Kothrud, Pune”, so we can find nearby places.";
+        "Enter a neighbourhood and city — for example “East Austin, TX” or “Kothrud, Pune” — so we can find nearby places.";
     if (
       !Number.isFinite(form.audience_age_min) ||
       !Number.isFinite(form.audience_age_max) ||
@@ -104,9 +115,12 @@ function NewCampaignInner() {
     )
       e.audience_age =
         "Enter a valid age range: the lower age must not be higher than the upper age (0–120).";
-    if (!Number.isFinite(form.budget_inr) || form.budget_inr < 500)
-      e.budget_inr =
-        "Enter at least ₹500 — the whole plan is built around this amount.";
+    if (
+      !Number.isFinite(form.budget) ||
+      form.budget < 500 ||
+      form.budget > 10_000_000
+    )
+      e.budget = `Enter a budget from ${form.currency === "USD" ? "$500" : "₹500"} to ${form.currency === "USD" ? "$10,000,000" : "₹1,00,00,000"} — the whole plan is built around this amount.`;
     if (
       !Number.isFinite(form.duration_days) ||
       form.duration_days < 1 ||
@@ -130,7 +144,9 @@ function NewCampaignInner() {
           audience_age_min: Number(form.audience_age_min),
           audience_age_max: Number(form.audience_age_max),
           audience_notes: form.audience_notes.trim(),
-          budget_inr: Number(form.budget_inr),
+          ...(form.currency === "USD"
+            ? { budget_usd: Number(form.budget), currency: "USD" as Currency }
+            : { budget_inr: Number(form.budget), currency: "INR" as Currency }),
           duration_days: Number(form.duration_days),
           objective: form.objective,
         },
@@ -152,7 +168,8 @@ function NewCampaignInner() {
         Describe your campaign
       </h1>
       <p className="mt-2 text-[15px] text-secondary">
-        Six short answers — about two minutes. Everything you type is marked{" "}
+        Six short answers — about two minutes. US locations are searched first,
+        with a global fallback. Everything you type is marked{" "}
         <ProvenanceBadge kind="user" /> and shown exactly as entered. We never
         ask for names, phone numbers, or patient details.
       </p>
@@ -174,9 +191,10 @@ function NewCampaignInner() {
           <input
             id="topic"
             value={form.topic}
+            maxLength={120}
             onChange={(e) => set("topic", e.target.value)}
             placeholder="e.g. Free diabetes screening camp"
-            className="w-full rounded-input border border-line bg-surface px-3 py-2"
+            className="w-full rounded-input border border-line bg-surface px-3 py-2.5"
             aria-invalid={!!errors.topic}
             aria-describedby={errors.topic ? "err-topic" : "help-topic"}
           />
@@ -198,19 +216,20 @@ function NewCampaignInner() {
           <label htmlFor="loc" className="mb-1 block text-[14px] font-medium">
             Where will it run? (neighbourhood, city)
           </label>
-          <input
-            id="loc"
+          <LocationAutocomplete
             value={form.location_text}
-            onChange={(e) => set("location_text", e.target.value)}
-            placeholder="e.g. Kothrud, Pune"
-            className="w-full rounded-input border border-line bg-surface px-3 py-2"
-            aria-invalid={!!errors.location_text}
-            aria-describedby={errors.location_text ? "err-loc" : "help-loc"}
+            onChange={(label) => set("location_text", label)}
+            onSelect={(s) => {
+              setPickedLat(s.lat);
+              setPickedLon(s.lon);
+            }}
+            hasError={!!errors.location_text}
+            describedBy={errors.location_text ? "err-loc" : "help-loc"}
           />
           <p id="help-loc" className="mt-1 text-[13px] text-secondary">
-            We&apos;ll find this place on the map and show nearby halls, parks
-            and clinics you could consider. We&apos;ll ask you to confirm the
-            match on the next screen.
+            Start typing — real place suggestions appear. Or tap a spot on the
+            map below. The map&apos;s names come from{" "}
+            <ProvenanceBadge kind="geo" />.
           </p>
           {errors.location_text && (
             <p
@@ -221,6 +240,20 @@ function NewCampaignInner() {
               {errors.location_text}
             </p>
           )}
+          <div className="mt-3">
+            <span className="mb-1 block text-[14px] font-medium">
+              Or pick a spot on the map
+            </span>
+            <ClickMap
+              lat={pickedLat}
+              lon={pickedLon}
+              onPick={(label, lat, lon) => {
+                setPickedLat(lat);
+                setPickedLon(lon);
+                set("location_text", label);
+              }}
+            />
+          </div>
         </div>
 
         <fieldset>
@@ -240,11 +273,18 @@ function NewCampaignInner() {
                 type="number"
                 min={0}
                 max={120}
-                value={form.audience_age_min}
-                onChange={(e) =>
-                  set("audience_age_min", Number(e.target.value))
+                value={
+                  Number.isFinite(form.audience_age_min)
+                    ? form.audience_age_min
+                    : ""
                 }
-                className="w-full rounded-input border border-line bg-surface px-3 py-2"
+                onChange={(e) =>
+                  set(
+                    "audience_age_min",
+                    e.target.value === "" ? NaN : Number(e.target.value),
+                  )
+                }
+                className="w-full rounded-input border border-line bg-surface px-3 py-2.5"
                 aria-invalid={!!errors.audience_age}
                 aria-describedby={errors.audience_age ? "err-age" : "help-age"}
               />
@@ -261,11 +301,18 @@ function NewCampaignInner() {
                 type="number"
                 min={0}
                 max={120}
-                value={form.audience_age_max}
-                onChange={(e) =>
-                  set("audience_age_max", Number(e.target.value))
+                value={
+                  Number.isFinite(form.audience_age_max)
+                    ? form.audience_age_max
+                    : ""
                 }
-                className="w-full rounded-input border border-line bg-surface px-3 py-2"
+                onChange={(e) =>
+                  set(
+                    "audience_age_max",
+                    e.target.value === "" ? NaN : Number(e.target.value),
+                  )
+                }
+                className="w-full rounded-input border border-line bg-surface px-3 py-2.5"
                 aria-invalid={!!errors.audience_age}
                 aria-describedby={errors.audience_age ? "err-age" : "help-age"}
               />
@@ -294,9 +341,10 @@ function NewCampaignInner() {
           <input
             id="notes"
             value={form.audience_notes}
+            maxLength={500}
             onChange={(e) => set("audience_notes", e.target.value)}
-            placeholder="e.g. Marathi and Hindi speaking families"
-            className="w-full rounded-input border border-line bg-surface px-3 py-2"
+            placeholder="e.g. Spanish-speaking families in East Austin"
+            className="w-full rounded-input border border-line bg-surface px-3 py-2.5"
             aria-describedby="help-notes"
           />
           <p id="help-notes" className="mt-1 text-[13px] text-secondary">
@@ -311,32 +359,46 @@ function NewCampaignInner() {
               htmlFor="budget"
               className="mb-1 block text-[14px] font-medium"
             >
-              Total budget (₹)
+              Total budget ({form.currency === "USD" ? "$" : "₹"})
             </label>
-            <input
-              id="budget"
-              type="number"
-              min={500}
-              step={500}
-              value={form.budget_inr}
-              onChange={(e) => set("budget_inr", Number(e.target.value))}
-              className="w-full rounded-input border border-line bg-surface px-3 py-2"
-              aria-invalid={!!errors.budget_inr}
-              aria-describedby={
-                errors.budget_inr ? "err-budget" : "help-budget"
-              }
-            />
+            <div className="flex gap-2">
+              <input
+                id="budget"
+                type="number"
+                min={500}
+                step={500}
+                value={Number.isFinite(form.budget) ? form.budget : ""}
+                onChange={(e) =>
+                  set(
+                    "budget",
+                    e.target.value === "" ? NaN : Number(e.target.value),
+                  )
+                }
+                className="w-full rounded-input border border-line bg-surface px-3 py-2.5"
+                aria-invalid={!!errors.budget}
+                aria-describedby={errors.budget ? "err-budget" : "help-budget"}
+              />
+              <select
+                aria-label="Budget currency"
+                value={form.currency}
+                onChange={(e) => set("currency", e.target.value as Currency)}
+                className="rounded-input border border-line bg-surface px-2 py-2.5"
+              >
+                <option value="USD">USD</option>
+                <option value="INR">INR</option>
+              </select>
+            </div>
             <p id="help-budget" className="mt-1 text-[13px] text-secondary">
-              In Indian rupees. The plan divides exactly this amount — nothing
-              more.
+              US campaigns use dollars. The plan divides exactly this amount —
+              nothing more.
             </p>
-            {errors.budget_inr && (
+            {errors.budget && (
               <p
                 id="err-budget"
                 role="alert"
                 className="mt-1 text-[13px] text-strong-error"
               >
-                {errors.budget_inr}
+                {errors.budget}
               </p>
             )}
           </div>
@@ -349,9 +411,16 @@ function NewCampaignInner() {
               type="number"
               min={1}
               max={90}
-              value={form.duration_days}
-              onChange={(e) => set("duration_days", Number(e.target.value))}
-              className="w-full rounded-input border border-line bg-surface px-3 py-2"
+              value={
+                Number.isFinite(form.duration_days) ? form.duration_days : ""
+              }
+              onChange={(e) =>
+                set(
+                  "duration_days",
+                  e.target.value === "" ? NaN : Number(e.target.value),
+                )
+              }
+              className="w-full rounded-input border border-line bg-surface px-3 py-2.5"
               aria-invalid={!!errors.duration_days}
               aria-describedby={errors.duration_days ? "err-dur" : "help-dur"}
             />
@@ -378,7 +447,7 @@ function NewCampaignInner() {
             id="obj"
             value={form.objective}
             onChange={(e) => set("objective", e.target.value)}
-            className="w-full rounded-input border border-line bg-surface px-3 py-2"
+            className="w-full rounded-input border border-line bg-surface px-3 py-2.5"
             aria-describedby="help-obj"
           >
             {OBJECTIVES.map((o) => (
@@ -400,7 +469,7 @@ function NewCampaignInner() {
         <button
           type="submit"
           disabled={submitting}
-          className="btn-primary w-full px-5 py-2.5 text-[15px] disabled:opacity-60"
+          className="btn-primary w-full disabled:opacity-60"
         >
           {submitting ? "Saving…" : "Create campaign brief"}
         </button>

@@ -69,11 +69,11 @@ The workflow:
 
 ## Implementation Status
 
-**Implemented**: Core workflow (brief → evidence → plan → results), Qloo 3-step chain, OSM venues, provenance UI, demo mode isolation, MongoDB + in-memory fallback, 34 backend tests passing.
+**Implemented**: Core workflow (brief → evidence → plan → results), Qloo 3-step chain, OSM venues, provenance UI, US-first dual-currency flow, both demo scenarios, backend-observed Qloo progress, ResultsMap, accessible charts, analysis views, plan comparison, CSV/PDF/JSON exports, 45 backend tests passing.
 
-**Partially Implemented**: US-focused venue categories, USD formatting, miles distance, LocationAutocomplete v2 debounce enhancements, ClickMap v2, QlooCallCounter, ResultsMap, InteractiveCharts, AnalysisViews.
-
-**Specified Only**: Export formats (CSV/PDF/JSON), plan-version comparison, advanced venue analysis.
+**Deliberately deferred**: reach-estimate overlay (no capacity data), venue
+verification workflow, accounts/dashboards, localization. See the roadmap for
+post-v1 ideas.
 
 ---
 

@@ -150,4 +150,4 @@ ready  ←──┐
 
 ---
 
-*Related: [Product Brief](PRODUCT_BRIEF.md) · [Product Requirements](PRODUCT_REQUIREMENTS.md) · [Frontend Routes](frontend/ROUTES_AND_WORKSPACE.md)*
+*Related: [Product Brief](PRODUCT_BRIEF.md) · [Product Requirements](PRODUCT_REQUIREMENTS.md) · [Frontend Routes](../frontend/ROUTES_AND_WORKSPACE.md)*

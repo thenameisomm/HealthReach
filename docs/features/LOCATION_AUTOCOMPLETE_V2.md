@@ -273,4 +273,4 @@ params = {
 
 ---
 
-*Related: [ClickMap v2](CLICK_MAP_V2.md) · [US-Focused](US_FOCUSED.md) · [API Contracts](docs/api/API_CONTRACTS.md)*
+*Related: [ClickMap v2](CLICK_MAP_V2.md) · [US-Focused](US_FOCUSED.md) · [API Contracts](../api/API_CONTRACTS.md)*

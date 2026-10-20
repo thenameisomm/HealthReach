@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
 import type { GeoVenue } from "@/lib/api";
+import { formatDistance } from "@/lib/format";
 
 export function MapView({
   lat,
@@ -28,9 +29,20 @@ export function MapView({
           '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 19,
       }).addTo(m);
-      L.marker([lat, lon]).addTo(m).bindPopup("Campaign location");
-      for (const v of venues.slice(0, 12)) {
-        if (v.lat && v.lon) L.marker([v.lat, v.lon]).addTo(m).bindPopup(v.name);
+      const pin = L.divIcon({
+        className: "hr-marker-wrap",
+        html: '<span class="campaign-pin" aria-hidden="true">★</span>',
+        iconSize: [34, 34],
+        iconAnchor: [17, 17],
+      });
+      L.marker([lat, lon], { icon: pin }).addTo(m).bindPopup("Campaign location");
+      for (const v of venues) {
+        if (v.lat == null || v.lon == null) continue;
+        L.marker([v.lat, v.lon])
+          .addTo(m)
+          .bindPopup(
+            `${v.name}<br/>${v.category}${v.distance_m != null ? `<br/>${formatDistance(v.distance_m)} away` : ""}`,
+          );
       }
       if (cancelled) {
         m.remove();

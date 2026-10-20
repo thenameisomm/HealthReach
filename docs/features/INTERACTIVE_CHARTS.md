@@ -635,4 +635,4 @@ interface ChartDataPoint {
 
 ---
 
-*Related: [Visualization Guidelines](docs/frontend/VISUALIZATION_GUIDELINES.md) · [Analytics API](docs/api/API_CONTRACTS.md) · [Accessibility](docs/frontend/ACCESSIBILITY.md)*
+*Related: [Visualization Guidelines](../frontend/VISUALIZATION_GUIDELINES.md) · [Analytics API](../api/API_CONTRACTS.md) · [Accessibility](../frontend/ACCESSIBILITY.md)*

@@ -271,4 +271,4 @@ QlooChainStep(
 
 ---
 
-*Related: [Qloo Agent Chain](QLOO_AGENT_CHAIN.md) · [Agent Orchestration](architecture/AGENT_ORCHESTRATION.md) · [LLM Contract](LLM_CONTRACT.md) · [External Services](EXTERNAL_SERVICES.md)*
+*Related: [Qloo Agent Chain](QLOO_AGENT_CHAIN.md) · [Agent Orchestration](../architecture/AGENT_ORCHESTRATION.md) · [LLM Contract](LLM_CONTRACT.md) · [External Services](EXTERNAL_SERVICES.md)*

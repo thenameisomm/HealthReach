@@ -9,6 +9,37 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] — integration/healthreach-redesign
 
+### Added
+- **US-first campaign flow**: USD is the default budget/currency, miles are
+  shown for venue distances, and US venue categories/geocoding are used.
+  INR and the Kothrud demo remain supported for existing campaigns.
+- **East Austin, TX demo** (`scenario=us`) alongside the Kothrud demo; both
+  remain isolated in `demo_data.py` and tagged `illustrative`.
+- **Qloo progress visibility**: backend-observed request/retry/cache counts,
+  per-step status, and `GET /api/campaigns/{id}/evidence/progress`.
+- **ResultsMap**: campaign pin, browser-side venue clustering, verification
+  states, selectable venue list, and an optional labeled 1-mile search area.
+- **InteractiveCharts**: planned-vs-actual bars, cost/registration, attendance
+  rate gauge, estimate ranges, and accessible data tables (CSS/SVG only).
+- **Analysis views**: evidence summary, venue/category mix, and plan-version
+  comparison via `GET /api/campaigns/{id}/plans/compare`.
+- **Exports**: results CSV, evidence JSON (PII redacted), and plan PDF
+  (minimal built-in writer with qualified-professional review notice).
+- **Tests**: 45 backend tests, including currency validation, US demo,
+  progress semantics, export privacy/stage rules, and plan comparison.
+
+### Changed
+- Campaign, plan, results, and analytics schemas now support dual currencies
+  (`budget_usd|budget_inr`, `cost_usd|cost_inr`, `amount_usd|amount_inr`,
+  `spend_usd|spend_inr`) with `currency` recorded explicitly.
+- Frontend currency-aware formatting and labels; results always save in the
+  campaign's currency. Mismatched result currency is rejected.
+- README, roadmap, API contracts, progress, TODO, and changelog updated.
+
+### Fixed
+- Qloo cache could leak mocked responses between tests; tests now clear it.
+- ResultsMap could initialize before its DOM ref existed, skipping markers.
+
 ### Documentation
 - **Added** Comprehensive documentation system under `docs/`:
   - Product: brief, problem/users, scope, user flows, requirements, roadmap

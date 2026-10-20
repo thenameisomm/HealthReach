@@ -306,4 +306,4 @@ Demo Data                 │ All fields provenance = "illustrative"
 
 ---
 
-*Related: [System Overview](SYSTEM_OVERVIEW.md) · [Agent Orchestration](AGENT_ORCHESTRATION.md) · [API Contracts](api/API_CONTRACTS.md)*
+*Related: [System Overview](SYSTEM_OVERVIEW.md) · [Agent Orchestration](AGENT_ORCHESTRATION.md) · [API Contracts](../api/API_CONTRACTS.md)*

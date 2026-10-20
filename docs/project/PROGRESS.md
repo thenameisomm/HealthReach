@@ -45,28 +45,42 @@
 - InteractiveCharts
 - AnalysisViews & Exports
 
-### Phase F: Targeted Implementation Fixes ✅ (In Progress - LocationAutocomplete v2, ClickMap v2 Complete)
+### Phase F: Targeted Implementation Fixes ✅ (Complete)
 - [x] LocationAutocomplete v2: US-biased geocoding, 300ms debounce, 120-char cap, stale cancellation
 - [x] ClickMap v2: US viewport, reverse geocode, typed field = truth, accessible errors
-- [ ] QlooCallCounter: backend-observed calls, 3-step progress, retries, cache
-- [ ] US-focused: USD formatting, miles, US venue categories, US demo
-- [ ] ResultsMap: campaign pin, clustered venues, verification badges, reach overlay
-- [ ] InteractiveCharts: planned vs actual, cost/reg, attendance rate, reach ranges, accessible tables
-- [ ] AnalysisViews & Exports: evidence dashboard, venue analysis, plan comparison, CSV/PDF/JSON exports
+- [x] QlooCallCounter: backend-observed calls, 3-step progress, retries, cache
+- [x] US-focused: USD default + INR compatibility, miles, US venue categories, US demo
+- [x] ResultsMap: campaign pin, browser clustering, verification badges, text list
+- [x] InteractiveCharts: planned vs actual, cost/reg, attendance rate, accessible tables
+- [x] AnalysisViews & Exports: evidence dashboard, venue mix, plan comparison, CSV/PDF/JSON
 
-### Phase G: Integration and Merge ✅ (Documentation + Design System + README + Feature Specs + LocationAutocomplete v2 + ClickMap v2 Complete)
-### Phase H: Final Verification ⏳ Pending (All Documentation + Design + README + Specs + LocationAutocomplete v2 + ClickMap v2 Verified)
+Implementation stayed dependency-free: CSS/SVG charts, in-component grid
+clustering, and a minimal PDF writer. The optional results-map overlay is a
+1-mile search area (not a reach or attendance estimate).
+
+### Phase G: Integration and Merge ✅ (Complete)
+All Phase F work landed directly on `integration/healthreach-redesign`; no
+separate final feature branches were created.
+
+### Phase H: Final Verification 🔄 (In Progress)
+- pytest: 45 passing
+- lint / typecheck: passing
+- build: passing after final ResultsMap/chart fixes (45 tests, lint, typecheck, build)
+- Browser QA: both demos, desktop + mobile, maps/clustering, charts, exports,
+  progress counter, console errors, overflow checked
+- Commit: pending
 
 ## Current Git State
 
-**Branch**: integration/healthreach-redesign (with uncommitted changes)
-**Uncommitted Changes**: 20 modified files across apps/api, apps/web, packages/ui
-**Untracked**: docs/, .opencode/, Judges-research.md, new test files, new components
+**Branch**: integration/healthreach-redesign (uncommitted integration work)
+**Uncommitted Changes**: API, web, tests, README, and docs updates
+**Untracked**: new export/progress services, new components, test_api_flow.py,
+`.opencode/`, `Judges-research.md`
 
-## Test Status (Baseline)
-- Backend: 34 tests passing (test_pipeline.py + test_api_flow.py)
-- Frontend: tsc --noEmit clean, next lint clean
-- Build: next build succeeds
+## Test Status
+- Backend: 45 tests passing (test_pipeline.py + test_api_flow.py)
+- Frontend: `tsc --noEmit` clean, ESLint clean, `next build` succeeds
+- Browser QA: 1280×900 + 390×844, both demo scenarios
 
 ## Blockers
 - None currently

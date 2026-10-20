@@ -9,6 +9,7 @@ from __future__ import annotations
 from app.models import (
     BudgetLine,
     CampaignBrief,
+    Currency,
     DraftMaterial,
     EvidenceSnapshot,
     GeoVenue,
@@ -21,17 +22,39 @@ from app.models import (
 )
 
 
+def _currency(brief: CampaignBrief) -> Currency:
+    return brief.currency or Currency.USD
+
+
+def _money(amount: int, currency: Currency) -> str:
+    if currency == Currency.USD:
+        return f"${amount:,}"
+    return f"₹{amount:,}"
+
+
+def _amount_fields(amount: int, currency: Currency) -> dict[str, int]:
+    if currency == Currency.USD:
+        return {"amount_usd": amount}
+    return {"amount_inr": amount}
+
+
+def _cost_fields(amount: int, currency: Currency) -> dict[str, int]:
+    if currency == Currency.USD:
+        return {"cost_usd": amount}
+    return {"cost_inr": amount}
+
+
 def build_plan(
     campaign_id: str,
     brief: CampaignBrief,
     evidence: EvidenceSnapshot,
     version: int = 1,
 ) -> Plan:
+    currency = _currency(brief)
+    budget_total = brief.budget_amount
     q0 = _ref(evidence.qloo_signals, 0, "organizer brief")
     q1 = _ref(evidence.qloo_signals, 1, "organizer brief")
     g0 = _gref(evidence.geo_venues, 0, "mapped venues")
-    # Plain labels for human-readable prose; the qloo:/geo: prefixed refs above
-    # stay machine-readable for evidence_refs (the UI translates them).
     # Plain labels for human-readable prose; the qloo:/geo: prefixed refs above
     # stay machine-readable for evidence_refs (the UI translates them).
     q0_name = _signal_label(evidence.qloo_signals, 0, "your brief")
@@ -47,12 +70,12 @@ def build_plan(
     culture_line = (
         f"Qloo taste signals ({len(evidence.qloo_signals)}) shape tone and channel mix"
         if has_culture
-        else "No usable Qloo signals — plan leans on verified venues + organizer input"
+        else "No usable Qloo signals — plan leans on mapped venue candidates + organizer input"
     )
 
-    budget = _split_budget(brief.budget_inr)
-    total = sum(b.amount_inr for b in budget)
-    assert total == brief.budget_inr, f"budget must sum: {total} != {brief.budget_inr}"
+    budget = _split_budget(budget_total, currency)
+    total = sum(b.amount for b in budget)
+    assert total == budget_total, f"budget must sum: {total} != {budget_total}"
 
     activities = [
         PlanActivity(
@@ -63,7 +86,7 @@ def build_plan(
                 f"venue choice grounded in {g0_name}. {culture_line}."
             ),
             evidence_refs=[g0, q0],
-            cost_inr=budget[0].amount_inr,
+            **_cost_fields(budget[0].amount, currency),
             provenance=Provenance.AI,
         ),
         PlanActivity(
@@ -71,7 +94,7 @@ def build_plan(
             channel="Community + print",
             why=f"Low-cost awareness for ages {brief.audience_age_min}–{brief.audience_age_max}; {tone_phrase}",
             evidence_refs=[q0, q1],
-            cost_inr=budget[1].amount_inr,
+            **_cost_fields(budget[1].amount, currency),
             provenance=Provenance.AI,
         ),
         PlanActivity(
@@ -80,7 +103,7 @@ def build_plan(
             why="Reminders lift show-up for free camps; schedule fits a "
             f"{brief.duration_days}-day window.",
             evidence_refs=[q0],
-            cost_inr=budget[2].amount_inr,
+            **_cost_fields(budget[2].amount, currency),
             provenance=Provenance.AI,
         ),
     ]
@@ -117,7 +140,7 @@ def build_plan(
         ),
         DraftMaterial(
             kind="message",
-            title="WhatsApp/SMS reminder draft",
+            title="Text-message reminder draft",
             body=(
                 "Reminder: free diabetes screening camp this week near you. "
                 "No fasting needed unless staff advise. Bring a family member. "
@@ -141,19 +164,28 @@ def build_plan(
     metrics = [
         SuccessMetric(
             name="Registrations",
-            target_range=_range(brief.budget_inr, 120, 300),
+            target_range=_range(budget_total, 120, 300),
             basis="AI estimate from budget/duration; assumes steady footfall. Range, not a promise.",
             provenance=Provenance.AI,
         ),
         SuccessMetric(
             name="Attendance",
-            target_range=_range(brief.budget_inr, 80, 220),
+            target_range=_range(budget_total, 80, 220),
             basis="AI estimate; assumes 60–75% show-up of registrations.",
             provenance=Provenance.AI,
         ),
         SuccessMetric(
+            name="Engagement",
+            target_range=_range(budget_total, 180, 420),
+            basis="AI estimate of other interactions (flyers, calls, messages). Range, not a promise.",
+            provenance=Provenance.AI,
+        ),
+        SuccessMetric(
             name="Cost per registration",
-            target_range=f"₹{_cpr(brief.budget_inr, 300):,}–₹{_cpr(brief.budget_inr, 120):,}",
+            target_range=(
+                f"{_money(_cpr(budget_total, 300), currency)}–"
+                f"{_money(_cpr(budget_total, 120), currency)}"
+            ),
             basis="Budget ÷ registration range above.",
             provenance=Provenance.AI,
         ),
@@ -165,12 +197,14 @@ def build_plan(
         summary=(
             f"{brief.topic} outreach in {brief.location_text} for ages "
             f"{brief.audience_age_min}–{brief.audience_age_max} over {brief.duration_days} days "
-            f"(₹{brief.budget_inr:,}). {culture_line}; venues are candidates needing verification."
+            f"({_money(budget_total, currency)}). {culture_line}; venues are candidates needing verification."
         ),
         activities=activities,
         venues=venues,
         budget=budget,
-        budget_total_inr=brief.budget_inr,
+        budget_total_usd=budget_total if currency == Currency.USD else None,
+        budget_total_inr=budget_total if currency == Currency.INR else None,
+        currency=currency,
         materials=materials,
         metrics=metrics,
         assumptions=[
@@ -210,15 +244,15 @@ def _venue_label(venues: list[GeoVenue], i: int, fallback: str) -> str:
     return fallback
 
 
-def _split_budget(total: int) -> list[BudgetLine]:
+def _split_budget(total: int, currency: Currency) -> list[BudgetLine]:
     # 50 / 30 / 20 split, remainder-safe so the sum is provably exact.
     a = total * 50 // 100
     b = total * 30 // 100
     c = total - a - b
     return [
-        BudgetLine(label="Venue + screening desk", amount_inr=a),
-        BudgetLine(label="Outreach + print", amount_inr=b),
-        BudgetLine(label="Messaging + contingency", amount_inr=c),
+        BudgetLine(label="Venue + screening desk", **_amount_fields(a, currency)),
+        BudgetLine(label="Outreach + print", **_amount_fields(b, currency)),
+        BudgetLine(label="Messaging + contingency", **_amount_fields(c, currency)),
     ]
 
 

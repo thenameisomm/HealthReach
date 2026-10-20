@@ -171,4 +171,4 @@ healthreach/
 
 ---
 
-*Related: [Architecture Decisions](ARCHITECTURE_DECISIONS.md) · [Data Flow](DATA_FLOW.md) · [Agent Orchestration](AGENT_ORCHESTRATION.md) · [API Overview](api/API_OVERVIEW.md)*
+*Related: [Architecture Decisions](ARCHITECTURE_DECISIONS.md) · [Data Flow](DATA_FLOW.md) · [Agent Orchestration](AGENT_ORCHESTRATION.md) · [API Overview](../api/API_OVERVIEW.md)*

@@ -252,4 +252,4 @@ For every number displayed:
 
 ---
 
-*Related: [Data Model](DATA_MODEL.md) · [Provenance Model](PROVENANCE_MODEL.md) · [Analytics API](api/API_CONTRACTS.md)*
+*Related: [Data Model](DATA_MODEL.md) · [Provenance Model](PROVENANCE_MODEL.md) · [Analytics API](../api/API_CONTRACTS.md)*

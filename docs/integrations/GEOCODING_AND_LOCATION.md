@@ -227,4 +227,4 @@ US_COUNTRY_CODES = "us"  # Planned
 
 ---
 
-*Related: [OSM Integration](OSM_INTEGRATION.md) · [LocationAutocomplete Component](../frontend/ROUTES_AND_WORKSPACE.md) · [API Contracts](api/API_CONTRACTS.md)*
+*Related: [OSM Integration](OSM_INTEGRATION.md) · [LocationAutocomplete Component](../frontend/ROUTES_AND_WORKSPACE.md) · [API Contracts](../api/API_CONTRACTS.md)*

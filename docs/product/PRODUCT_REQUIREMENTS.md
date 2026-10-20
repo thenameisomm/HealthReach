@@ -3,7 +3,7 @@
 ## Functional Requirements
 
 ### FR-001: Campaign Brief
-- **FR-001.1**: Organizer can enter topic (3–120 chars), location (text + map pick), audience age range (0–120, min ≤ max), audience notes (500 chars), budget (USD, $500–$10M), duration (1–90 days), objective (awareness/attendance/screening/vaccination).
+- **FR-001.1**: Organizer can enter topic (3–120 chars), location (text + map pick), audience age range (0–120, min ≤ max), audience notes (500 chars), budget (USD default or INR, 500–10M), duration (1–90 days), objective (awareness/attendance/screening/vaccination).
 - **FR-001.2**: Per-field "why" hints explain purpose and impact.
 - **FR-001.3**: LocationAutocomplete v2: debounced (300ms), US-biased, 120-char cap, no re-query after selection, stale request cancellation.
 - **FR-001.4**: ClickMap v2: click → reverse geocode → fills typed field; field remains source of truth; US initial viewport.
@@ -41,7 +41,7 @@
 - **FR-005.2**: Pre-use checklist (venue verification, material review, budget confirmation).
 - **FR-005.3**: "How this draft was made" line shows planner type + evidence summary.
 - **FR-005.4**: Section regeneration: POST /api/campaigns/{id}/plan {section} → new version, version++.
-- **FR-005.5**: Version history accessible (planned).
+- **FR-005.5**: Version comparison accessible in the analysis view.
 
 ### FR-006: Results & Analytics
 - **FR-006.1**: Aggregate counts only: registrations, attendance, spend, engagement (+ optional notes).
@@ -50,7 +50,7 @@
 - **FR-006.4**: Null-safe: "Not calculable — needs at least 1 registration" when denominators zero.
 
 ### FR-007: Demo Mode
-- **FR-007.1**: Fixed Kothrud scenario from `demo_data.py` only.
+- **FR-007.1**: Fixed US (East Austin) and Kothrud scenarios from `demo_data.py` only; `GET /api/demo/scenario?scenario=us|kothrud`.
 - **FR-007.2**: All API responses tagged `provenance: illustrative`.
 - **FR-007.3**: Persistent dashed "Illustrative data" banner in UI.
 - **FR-007.4**: Real-mode paths never import `demo_data`.
@@ -63,7 +63,7 @@
 - **FR-008.5**: US demo scenario (e.g., East Austin, TX).
 
 ### FR-009: Visualization & Export
-- **FR-009.1**: ResultsMap: campaign pin, candidate venues (clustered), verification state, optional reach overlay.
+- **FR-009.1**: ResultsMap: campaign pin, candidate venues (clustered), verification state, optional 1-mile search area (not a reach estimate).
 - **FR-009.2**: InteractiveCharts: planned vs actual (bar/line), cost/registration, attendance rate, reach ranges.
 - **FR-009.3**: AnalysisViews: evidence dashboard, venue analysis, plan comparison.
 - **FR-009.4**: Exports: CSV (results), PDF (plan), JSON (evidence snapshot).
@@ -106,8 +106,8 @@
 
 ## Acceptance Criteria References
 
-See [Acceptance Criteria](quality/ACCEPTANCE_CRITERIA.md) for testable criteria mapped to each requirement.
+See [Acceptance Criteria](../quality/ACCEPTANCE_CRITERIA.md) for testable criteria mapped to each requirement.
 
 ---
 
-*Related: [Product Brief](PRODUCT_BRIEF.md) · [User Flows](USER_FLOWS.md) · [Roadmap](ROADMAP.md) · [Acceptance Criteria](quality/ACCEPTANCE_CRITERIA.md)*
+*Related: [Product Brief](PRODUCT_BRIEF.md) · [User Flows](USER_FLOWS.md) · [Roadmap](ROADMAP.md) · [Acceptance Criteria](../quality/ACCEPTANCE_CRITERIA.md)*

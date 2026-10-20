@@ -427,4 +427,4 @@ function useEvidenceProgress(campaignId: string, isLoading: boolean) {
 
 ---
 
-*Related: [Qloo Agent Chain](docs/integrations/QLOO_AGENT_CHAIN.md) · [Evidence Gathering](docs/integrations/QLOO_INTEGRATION.md) · [API Contracts](docs/api/API_CONTRACTS.md)*
+*Related: [Qloo Agent Chain](../integrations/QLOO_AGENT_CHAIN.md) · [Evidence Gathering](../integrations/QLOO_INTEGRATION.md) · [API Contracts](../api/API_CONTRACTS.md)*

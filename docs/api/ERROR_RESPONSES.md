@@ -248,4 +248,4 @@ function friendlyError(error: ApiError): string {
 
 ---
 
-*Related: [API Contracts](API_CONTRACTS.md) · [API Overview](API_OVERVIEW.md) · [Error Handling](architecture/ERROR_HANDLING.md)*
+*Related: [API Contracts](API_CONTRACTS.md) · [API Overview](API_OVERVIEW.md) · [Error Handling](../architecture/ERROR_HANDLING.md)*

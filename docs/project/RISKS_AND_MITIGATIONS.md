@@ -395,4 +395,4 @@
 
 ---
 
-*Related: [Decisions Log](DECISIONS_LOG.md) · [Architecture Decisions](architecture/ARCHITECTURE_DECISIONS.md) · [Security & Privacy](architecture/SECURITY_AND_PRIVACY.md)*
+*Related: [Decisions Log](DECISIONS_LOG.md) · [Architecture Decisions](../architecture/ARCHITECTURE_DECISIONS.md) · [Security & Privacy](../architecture/SECURITY_AND_PRIVACY.md)*

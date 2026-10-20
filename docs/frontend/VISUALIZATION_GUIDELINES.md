@@ -32,8 +32,11 @@ This document defines standards for all data visualizations in HealthReach: char
 
 ### Library
 
-**Current**: None (planned: Recharts or Chart.js — lightweight, accessible)
-**Fallback**: HTML `<table>` with semantic structure (always available)
+**Current**: Dependency-free CSS/SVG components in
+`apps/web/components/charts/InteractiveCharts.tsx`.
+**Fallback**: HTML `<table>` with semantic structure, always rendered. No
+charting library is bundled; see the evaluation below if richer interaction is
+needed later.
 
 ### Chart Types & When to Use
 
@@ -221,9 +224,9 @@ Step 3: Double-checked with East Austin Library
 | Attribution | "© OpenStreetMap contributors (ODbL)" — always visible |
 | Campaign pin | Distinct marker (star/diamond), labeled "Campaign location" |
 | Venue markers | Circle markers, color by category |
-| Clustering | Leaflet.markercluster for > 10 venues |
+| Clustering | In-component grid clustering for > 10 venues; list remains the text alternative |
 | Verification badge | On marker popup + list: "Visit and verify" |
-| Reach overlay | **Optional**, only if methodology documented |
+| Overlay | Optional 1-mile search area, explicitly not a reach/attendance estimate |
 | Text alternative | Venue list below map (required) |
 
 ### Reach Overlay (If Implemented)
@@ -340,8 +343,10 @@ cam_abc123,"Diabetes Screening","East Austin, TX","2026-10-27",180,135,4850,320,
 | D3 + custom | ~30KB | Manual | Yes | BSD |
 | **HTML Table only** | **0KB** | **Native** | **N/A** | **—** |
 
-**Recommendation**: Start with **HTML tables + minimal Recharts** for key charts (planned vs actual). Add more only if user testing demands.
+**Recommendation**: The shipped implementation uses semantic HTML tables plus
+minimal CSS/SVG charts (zero bundle cost). Revisit a charting library only if
+user testing shows a concrete need for richer interaction.
 
 ---
 
-*Related: [Design System](DESIGN_SYSTEM.md) · [Accessibility](ACCESSIBILITY.md) · [Estimates & Metrics](data/ESTIMATES_AND_METRICS.md) · [ResultsMap Spec](../project/TODO.md)*
+*Related: [Design System](DESIGN_SYSTEM.md) · [Accessibility](ACCESSIBILITY.md) · [Estimates & Metrics](../data/ESTIMATES_AND_METRICS.md) · [ResultsMap Spec](../project/TODO.md)*

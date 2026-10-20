@@ -31,16 +31,14 @@ Browser QA scripts kept outside repo in `/tmp/hr-qa/`:
 **Steps**:
 1. Open `http://localhost:3000`
 2. Verify landing page loads: hero, 4 value cards, 4 steps, sources, ground rules
-3. Click "See a working example"
-4. Verify `/new?mode=demo` loads with Kothrud pre-filled:
+3. Click the **East Austin, TX** demo (default/USD); repeat with **Kothrud, Pune** (INR)
+4. The campaign opens in the workspace with the demo brief pre-filled:
+   - US: East Austin, TX, ages 30-65, $5,000, 7 days
+   - Kothrud: ages 30-60, ₹10,000, 7 days
    - Topic: "Free diabetes screening camp"
-   - Location: "Kothrud, Pune"
-   - Audience: 30-60
-   - Budget: ₹10,000
-   - Duration: 7 days
-   - Objective: "Bring people to a camp"
 5. Click "Create outreach plan"
-6. Verify evidence loading: Qloo call counter shows steps 1→2→3
+6. Verify evidence loading: Qloo call counter shows steps 1→2→3, with request
+   count and retry/cache labels when present
 7. Verify evidence review:
    - Familiarity hints in plain language
    - Technical details toggle works
@@ -53,7 +51,7 @@ Browser QA scripts kept outside repo in `/tmp/hr-qa/`:
 9. Verify plan review:
    - Activities with evidence refs
    - Venues with reasons + verification badges
-   - Budget lines sum to ₹10,000 exactly
+   - Budget lines sum to the demo budget exactly ($5,000 or ₹10,000)
    - Materials (poster, message, script) with review notice
    - Metrics with target ranges + basis
    - "How this draft was made" line shows planner type

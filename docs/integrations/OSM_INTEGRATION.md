@@ -286,4 +286,4 @@ OVERPASS_RADIUS_M = 1500  # default search radius
 
 ---
 
-*Related: [Geocoding & Location](GEOCODING_AND_LOCATION.md) · [Data Model](data/DATA_MODEL.md) · [External Services](EXTERNAL_SERVICES.md)*
+*Related: [Geocoding & Location](GEOCODING_AND_LOCATION.md) · [Data Model](../data/DATA_MODEL.md) · [External Services](EXTERNAL_SERVICES.md)*

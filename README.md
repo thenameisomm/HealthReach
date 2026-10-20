@@ -113,7 +113,9 @@ pnpm install
 pnpm dev               # web :3000 + api :8000 via Turborepo
 ```
 
-Open **http://localhost:3000**. No keys? The **Kothrud demo** runs the full flow on labeled illustrative data.
+Open **http://localhost:3000**. No keys? Pick the **East Austin, TX** demo
+(USD) or the **Kothrud, Pune** demo (₹) — both run the full flow on labeled
+illustrative data.
 
 ### Individual Commands
 
@@ -156,29 +158,32 @@ See `.env.example` (committed). Missing keys produce setup messages, never crash
 | LLM planner + fallback | ✅ Implemented | 1 repair retry, `planner` label |
 | Plan versioning | ✅ Implemented | Section regeneration increments version |
 | Results + analytics | ✅ Implemented | Descriptive, null-safe |
-| Demo mode (Kothrud) | ✅ Implemented | Isolated, tagged `illustrative` |
+| Demo modes (East Austin + Kothrud) | ✅ Implemented | USD/₹, isolated, tagged `illustrative` |
 | Provenance UI | ✅ Implemented | Icon + label + border per value |
-| **US-focused enhancements** | 🔄 Planned (v0.2) | USD, miles, US venue categories, US demo |
-| **LocationAutocomplete v2** | 🔄 Planned | Debounce, US bias, stale cancellation |
-| **ClickMap v2** | 🔄 Planned | Reverse geocode, US viewport |
-| **QlooCallCounter** | 🔄 Planned | Backend-observed calls, 3-step progress |
-| **ResultsMap** | 🔄 Planned | Campaign pin, clustered venues, verification |
-| **InteractiveCharts** | 🔄 Planned | Planned vs actual, accessible tables |
-| **Exports (CSV/PDF/JSON)** | 🔄 Planned | Privacy-preserving |
+| US-focused enhancements | ✅ Implemented | USD-first, miles, US venue categories, US demo |
+| LocationAutocomplete v2 | ✅ Implemented | 300ms debounce, US bias, stale cancellation |
+| ClickMap v2 | ✅ Implemented | Reverse geocode, typed field remains truth |
+| QlooCallCounter | ✅ Implemented | Backend-observed requests, 3-step progress |
+| ResultsMap | ✅ Implemented | Campaign pin, browser clustering, verification, list |
+| InteractiveCharts | ✅ Implemented | Planned vs actual, cost, rate, accessible tables |
+| Analysis views + plan compare | ✅ Implemented | Evidence summary, venue mix, version diff |
+| Exports (CSV/PDF/JSON) | ✅ Implemented | Privacy-redacted, no third-party writer |
 
 ---
 
 ## Demo
 
-**No keys required** — click "See a working example" on the landing page.
+**No keys required** — choose a demo on the landing page.
 
-The Kothrud demo (Pune, India) runs the full flow on illustrative data:
-- Free diabetes screening camp
-- Ages 30–60, ₹10,000 budget, 7 days
-- Persistent dashed "Illustrative data" banner
-- All values tagged `provenance: illustrative` in API responses
+- **East Austin, TX (default)** — diabetes screening camp, ages 30–65,
+  $5,000 budget, 7 days, USD and miles.
+- **Kothrud, Pune (India)** — diabetes screening camp, ages 30–60,
+  ₹10,000 budget, 7 days.
 
-**US demo scenario (planned)**: East Austin, TX diabetes screening camp.
+Both run the full flow on illustrative data behind a persistent dashed
+"Illustrative data" banner. Every demo value is tagged
+`provenance: illustrative` in API responses. Real-mode code never imports
+demo data.
 
 ---
 
@@ -224,10 +229,10 @@ Full technical documentation in [`docs/`](docs/):
 
 ## Tests & Verification
 
-- **Backend**: 34 tests passing (`test_pipeline.py` + `test_api_flow.py`)
+- **Backend**: 45 tests passing (`test_pipeline.py` + `test_api_flow.py`)
 - **Frontend**: `tsc --noEmit` clean, `next lint` clean, `next build` succeeds
 - **API Parity**: `pnpm generate:api` verifies TypeScript client against live OpenAPI
-- **Manual QA**: Headless Chrome (1280×900 + 390×844), demo happy path, error states, mobile, keyboard focus
+- **Manual QA**: Headless Chrome (1280×900 + 390×844) across both demos: happy path, maps/clustering, charts, exports, progress counter, mobile overflow, console errors
 
 ```bash
 # Run all checks
@@ -246,7 +251,8 @@ pnpm --filter @healthreach/api test
 - No footfall, health-need, trust, or outcome data used
 - LLM plans constrained to cite evidence IDs; malformed output retries once, then falls back
 - No Hindi/Marathi localization yet; no offline support beyond honest error states
-- US-focused enhancements planned for v0.2
+- Results map has no reach-estimate overlay (no venue capacity data); its optional 1-mile circle is a search area, not attendance
+- Charts, venue clustering, and PDF export are intentionally dependency-free; they cover the documented flows but are not a general charting/PDF toolkit
 
 ---
 

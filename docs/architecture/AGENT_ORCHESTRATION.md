@@ -230,4 +230,4 @@ The deterministic planner (`apps/api/app/services/planner.py`) is the **guarante
 
 ---
 
-*Related: [Qloo Integration](integrations/QLOO_INTEGRATION.md) · [LLM Contract](integrations/LLM_CONTRACT.md) · [Data Flow](DATA_FLOW.md)*
+*Related: [Qloo Integration](../integrations/QLOO_INTEGRATION.md) · [LLM Contract](../integrations/LLM_CONTRACT.md) · [Data Flow](DATA_FLOW.md)*

@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
-from app.db import init_db
+from app.db import init_db, is_persistent
 from app.routers.api import router
 
 
@@ -35,6 +35,7 @@ def create_app() -> FastAPI:
             "ok": True,
             "qlooConfigured": s.qloo_configured,
             "llmConfigured": s.llm_configured,
+            "dbMode": "mongo" if is_persistent() else "memory",
         }
 
     return app

@@ -182,4 +182,4 @@ interface Analytics {
 
 ---
 
-*Related: [System Overview](SYSTEM_OVERVIEW.md) · [Agent Orchestration](AGENT_ORCHESTRATION.md) · [API Error Responses](api/ERROR_RESPONSES.md)*
+*Related: [System Overview](SYSTEM_OVERVIEW.md) · [Agent Orchestration](AGENT_ORCHESTRATION.md) · [API Error Responses](../api/ERROR_RESPONSES.md)*

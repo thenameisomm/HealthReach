@@ -782,4 +782,4 @@ def validate_export_privacy(export_data: dict) -> bool:
 
 ---
 
-*Related: [Evidence Dashboard](docs/integrations/QLOO_INTEGRATION.md) · [Export Privacy](docs/architecture/SECURITY_AND_PRIVACY.md) · [Visualization Guidelines](docs/frontend/VISUALIZATION_GUIDELINES.md)*
+*Related: [Evidence Dashboard](../integrations/QLOO_INTEGRATION.md) · [Export Privacy](../architecture/SECURITY_AND_PRIVACY.md) · [Visualization Guidelines](../frontend/VISUALIZATION_GUIDELINES.md)*

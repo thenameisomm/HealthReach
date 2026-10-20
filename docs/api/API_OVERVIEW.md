@@ -115,9 +115,14 @@ All API routes prefixed with `/api`.
 | GET | `/api/campaigns` | List campaigns (with stage filter) |
 | GET | `/api/campaigns/{id}` | Get campaign + plan + evidence + results |
 | POST | `/api/campaigns/{id}/evidence` | Gather evidence (Qloo + OSM) |
+| GET | `/api/campaigns/{id}/evidence/progress` | Backend-observed Qloo progress |
 | POST | `/api/campaigns/{id}/plan` | Generate/regen plan |
 | POST | `/api/campaigns/{id}/results` | Save aggregate results |
 | GET | `/api/campaigns/{id}/analytics` | Planned vs actual |
+| GET | `/api/campaigns/{id}/plans/compare` | Section-level plan diff |
+| GET | `/api/campaigns/{id}/export/csv` | Results CSV |
+| GET | `/api/campaigns/{id}/export/json` | Evidence JSON (redacted) |
+| GET | `/api/campaigns/{id}/export/pdf` | Plan PDF |
 
 ## Geo Endpoints
 
@@ -130,7 +135,7 @@ All API routes prefixed with `/api`.
 
 | Method | Path | Description |
 |---|---|---|
-| GET | `/api/demo/scenario` | Fixed Kothrud scenario |
+| GET | `/api/demo/scenario?scenario=us\|kothrud` | Fixed illustrative scenario |
 
 ## Request/Response Schemas
 

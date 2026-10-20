@@ -531,4 +531,4 @@ function createReachOverlay(map: L.Map): L.ImageOverlay | L.TileLayer {
 
 ---
 
-*Related: [Evidence Gathering](docs/integrations/QLOO_INTEGRATION.md) · [OSM Integration](docs/integrations/OSM_INTEGRATION.md) · [Visualization Guidelines](docs/frontend/VISUALIZATION_GUIDELINES.md)*
+*Related: [Evidence Gathering](../integrations/QLOO_INTEGRATION.md) · [OSM Integration](../integrations/OSM_INTEGRATION.md) · [Visualization Guidelines](../frontend/VISUALIZATION_GUIDELINES.md)*

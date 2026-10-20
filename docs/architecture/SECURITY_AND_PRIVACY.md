@@ -249,4 +249,4 @@ Not currently certified. Relevant controls implemented:
 
 ---
 
-*Related: [System Overview](SYSTEM_OVERVIEW.md) · [Error Handling](ERROR_HANDLING.md) · [API Contracts](api/API_CONTRACTS.md) · [External Services](integrations/EXTERNAL_SERVICES.md)*
+*Related: [System Overview](SYSTEM_OVERVIEW.md) · [Error Handling](ERROR_HANDLING.md) · [API Contracts](../api/API_CONTRACTS.md) · [External Services](../integrations/EXTERNAL_SERVICES.md)*

@@ -17,11 +17,11 @@
 - [x] Provenance-first UI (icon + label + border per value)
 - [x] Four routes: `/`, `/new`, `/campaigns`, `/campaigns/[id]`
 
-### US-Focused Enhancements (Specified)
-- [ ] US-biased geocoding (Nominatim `countrycodes=us`, `accept-language=en-US`)
-- [ ] USD budget formatting (`$1,234` instead of `₹1,234`)
-- [ ] Miles distance display (convert from meters)
-- [ ] US-relevant OSM venue categories:
+### US-Focused Enhancements (Implemented)
+- [x] US-biased geocoding (Nominatim `countrycodes=us`, `accept-language=en-US`)
+- [x] USD-first budget formatting (`$1,234`; INR remains supported)
+- [x] Miles distance display (convert from meters)
+- [x] US-relevant OSM venue categories:
   - FQHCs (Federally Qualified Health Centers) — `amenity=clinic` + `healthcare:speciality=fqhc`
   - Local health departments — `office=government` + `government=health`
   - Community centers — `amenity=community_centre`
@@ -29,24 +29,28 @@
   - Parks — `leisure=park`
   - Schools — `amenity=school`
   - Pharmacies — `amenity=pharmacy`
-- [ ] US demo scenario (e.g., East Austin, TX diabetes screening camp)
-- [ ] US phone/address formatting helpers
+- [x] US demo scenario (East Austin, TX diabetes screening camp)
+- [ ] US phone/address formatting helpers — not needed; the product collects
+  no phone numbers (privacy by design) and uses one location field
 
-### Enhanced Location Picking (Specified)
-- [ ] LocationAutocomplete v2: debounced (300ms), 120-char cap, US bias, no re-query after selection, stale request cancellation
-- [ ] ClickMap v2: reverse geocode on click, typed field remains source of truth, US initial viewport, accessible error handling
+### Enhanced Location Picking (Implemented)
+- [x] LocationAutocomplete v2: debounced (300ms), 120-char cap, US bias, no re-query after selection, stale request cancellation
+- [x] ClickMap v2: reverse geocode on click, typed field remains source of truth, US initial viewport, accessible error handling
 
-### Qloo Progress & Analysis (Specified)
-- [ ] QlooCallCounter: backend-observed request count + 3-step progress (steps, retries, cached)
-- [ ] Evidence dashboard: affinity signals, tag overlap, place comparison, provenance, freshness
-- [ ] Venue analysis: geographic coverage, category distribution, verification status, distances
-- [ ] Plan-version comparison: diff activities/budget/materials across versions
+### Qloo Progress & Analysis (Implemented)
+- [x] QlooCallCounter: backend-observed request count + 3-step progress (steps, retries, cached)
+- [x] Evidence dashboard: signals, place comparison, provenance, status
+- [x] Venue analysis: geographic coverage, category distribution, verification status, distances
+- [x] Plan-version comparison: diff activities/budget/materials across versions
 
-### Visualization & Export (Specified)
-- [ ] ResultsMap: campaign venue pin, candidate venues (clustered), verification state, optional reach overlay
-- [ ] InteractiveCharts: planned vs actual (registrations, attendance, spend, engagement), cost/registration, attendance rate, reach estimate ranges
-- [ ] AnalysisViews: evidence dashboard, venue analysis, plan comparison
-- [ ] Exports: CSV (results), PDF (plan), JSON (evidence snapshot)
+### Visualization & Export (Implemented)
+- [x] ResultsMap: campaign venue pin, clustered candidates, verification state, optional 1-mile search-area overlay
+- [x] InteractiveCharts: planned vs actual (registrations, attendance, spend, engagement), cost/registration, attendance rate, reach estimate ranges
+- [x] AnalysisViews: evidence dashboard, venue analysis, plan comparison
+- [x] Exports: CSV (results), PDF (plan), JSON (evidence snapshot)
+
+**Not implemented**: reach-estimate overlay (requires venue capacity/attendance
+data); the 1-mile circle is labeled as a search area only.
 
 ## Out of Scope (Explicit Non-Goals)
 

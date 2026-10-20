@@ -11,14 +11,18 @@
 | LLM planner (with fallback) | ✅ Implemented | Repair retry, schema validation |
 | Plan versioning (section regen) | ✅ Implemented | Version increment, refs preserved |
 | Aggregate results + analytics | ✅ Implemented | Descriptive, null-safe |
-| Demo mode (Kothrud) | ✅ Implemented | Isolated, tagged illustrative |
+| Demo modes (East Austin + Kothrud) | ✅ Implemented | USD default; isolated, tagged illustrative |
 | Provenance UI (icon+label+border) | ✅ Implemented | 5 categories |
-| Backend tests | ✅ 34 passing | Pipeline + API flow |
-| TypeScript strict / ESLint clean | ✅ Passing | `tsc --noEmit`, `next lint` |
+| US-focused behavior | ✅ Implemented | USD default, miles, US categories, US demo |
+| Qloo progress counter | ✅ Implemented | Backend-observed requests, retries, cache |
+| Results map + charts | ✅ Implemented | Campaign pin, clustering, accessible charts |
+| Analysis views + exports | ✅ Implemented | Plan compare, CSV/PDF/JSON, privacy redaction |
+| Backend tests | ✅ 45 passing | Pipeline + API flow |
+| TypeScript strict / ESLint clean | ✅ Passing | `tsc --noEmit`, ESLint, build |
 
 ---
 
-## Phase 1: US-Focused Product & Enhanced Location (v0.2 — Target: 2 weeks)
+## Phase 1: US-Focused Product & Enhanced Location (v0.2 — ✅ Done 2026-10-20)
 
 | ID | Requirement | Effort | Dependencies |
 |---|---|---|---|
@@ -34,7 +38,7 @@
 
 ---
 
-## Phase 2: Qloo Progress Visibility & Evidence Depth (v0.3 — Target: 2 weeks)
+## Phase 2: Qloo Progress Visibility & Evidence Depth (v0.3 — ✅ Done 2026-10-20)
 
 | ID | Requirement | Effort | Dependencies |
 |---|---|---|---|
@@ -46,13 +50,13 @@
 
 ---
 
-## Phase 3: Results Map & Interactive Charts (v0.4 — Target: 3 weeks)
+## Phase 3: Results Map & Interactive Charts (v0.4 — ✅ Done 2026-10-20)
 
 | ID | Requirement | Effort | Dependencies |
 |---|---|---|---|
-| RM-01 | ResultsMap: campaign pin, candidate venues (clustered), verification badges, optional reach overlay | L | MapView, Leaflet.markercluster, GeoVenue |
+| RM-01 | ResultsMap: campaign pin, candidate venues (clustered), verification badges, optional search-area overlay | L | MapView, in-component clustering, GeoVenue |
 | RM-02 | Venue list parity (text alternative) with verification status | S | ResultsMap |
-| IC-01 | InteractiveCharts: planned vs actual (registrations, attendance, spend, engagement) | M | Analytics data, Recharts or similar |
+| IC-01 | InteractiveCharts: planned vs actual (registrations, attendance, spend, engagement) | M | Analytics data, accessible CSS/SVG |
 | IC-02 | Cost per registration, attendance rate, reach estimate ranges | S | Analytics computation |
 | IC-03 | Accessible alternatives: data tables, keyboard nav, screen reader labels | M | Chart components |
 | IC-04 | Null-safe rendering: "Not calculable" states | S | Analytics model |
@@ -61,14 +65,14 @@
 
 ---
 
-## Phase 4: Analysis Views & Exports (v0.5 — Target: 2 weeks)
+## Phase 4: Analysis Views & Exports (v0.5 — ✅ Done 2026-10-20)
 
 | ID | Requirement | Effort | Dependencies |
 |---|---|---|---|
 | AV-01 | Venue analysis: geographic coverage, category distribution, verification status, distances | M | GeoVenue, MapView |
 | AV-02 | Plan-version comparison: diff activities/budget/materials across versions | M | Plan versioning, new API endpoint |
 | EX-01 | CSV export: aggregate results (registrations, attendance, spend, engagement, dates) | S | ResultsInput, new API endpoint |
-| EX-02 | PDF export: campaign plan (activities, venues, budget, materials, metrics) | M | Plan model, PDF generation (reportlab or similar) |
+| EX-02 | PDF export: campaign plan (activities, venues, budget, materials, metrics) | M | Plan model, minimal built-in PDF writer |
 | EX-03 | JSON export: evidence snapshot (Qloo signals + steps, OSM venues, provenance) | S | EvidenceSnapshot, new API endpoint |
 | EX-04 | Export privacy: no secrets, no raw provider responses, no patient data | S | All exports |
 
@@ -76,7 +80,7 @@
 
 ---
 
-## Phase 5: Polish, Hardening & Documentation (v1.0 — Target: 2 weeks)
+## Phase 5: Polish, Hardening & Documentation (v1.0 — 🔄 In progress)
 
 | ID | Requirement | Effort | Dependencies |
 |---|---|---|---|
@@ -121,12 +125,17 @@
 | Milestone | Target Date | Actual Date | Status |
 |---|---|---|---|
 | v0.1 baseline | 2026-10-15 | 2026-10-18 | ✅ Done |
-| v0.2 US-focused | 2026-11-01 | — | 🔄 In Progress |
-| v0.3 Qloo progress | 2026-11-15 | — | ⏳ Planned |
-| v0.4 Map + Charts | 2026-12-06 | — | ⏳ Planned |
-| v0.5 Analysis + Export | 2026-12-20 | — | ⏳ Planned |
-| v1.0 Release | 2027-01-03 | — | ⏳ Planned |
+| v0.2 US-focused | 2026-11-01 | 2026-10-20 | ✅ Done |
+| v0.3 Qloo progress | 2026-11-15 | 2026-10-20 | ✅ Done |
+| v0.4 Map + Charts | 2026-12-06 | 2026-10-20 | ✅ Done |
+| v0.5 Analysis + Export | 2026-12-20 | 2026-10-20 | ✅ Done |
+| v1.0 Release | 2027-01-03 | — | 🔄 In Progress |
 
 ---
 
-*Related: [Product Requirements](PRODUCT_REQUIREMENTS.md) · [Acceptance Criteria](quality/ACCEPTANCE_CRITERIA.md) · [Project Progress](project/PROGRESS.md)*
+**Implementation note**: To avoid speculative dependencies, charts are
+accessible CSS/SVG, venue clustering is handled inside `ResultsMap`, and PDF
+export is a minimal built-in writer. The results-map overlay is a 1-mile
+search area, not a reach/attendance estimate.
+
+*Related: [Product Requirements](PRODUCT_REQUIREMENTS.md) · [Acceptance Criteria](../quality/ACCEPTANCE_CRITERIA.md) · [Project Progress](../project/PROGRESS.md)*

@@ -315,4 +315,4 @@ Applied to: Qloo (`qloo_status`), OSM venues (`geo_status`), LLM (planner label)
 
 ---
 
-*Related: [Architecture Decisions](architecture/ARCHITECTURE_DECISIONS.md) · [Risks & Mitigations](RISKS_AND_MITIGATIONS.md)*
+*Related: [Architecture Decisions](../architecture/ARCHITECTURE_DECISIONS.md) · [Risks & Mitigations](RISKS_AND_MITIGATIONS.md)*

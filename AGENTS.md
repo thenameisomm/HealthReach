@@ -45,8 +45,10 @@ apps/web/
   app/                  # / (landing) · /new (brief) · /campaigns (list) ·
                         # /campaigns/[id] (workspace) · layout · globals.css · icon.svg
   components/           # Nav · Provenance (+SourceLegend, DemoBanner) · InfoTip ·
-                        # MapView · States (EmptyState, Skeleton, ProgressStatus)
+                        # MapView · ResultsMap · QlooCallCounter · AnalysisViews ·
+                        # charts/InteractiveCharts · States
   lib/api.ts            # typed HTTP client + friendlyError() — mirrors OpenAPI
+  lib/format.ts         # money/distance/currency/range display helpers
   lib/types.ts          # pointer file; real types live in lib/api.ts
   scripts/generate-api-types.mjs  # verifies client/OpenAPI parity (API must run)
 apps/api/
@@ -54,10 +56,10 @@ apps/api/
   app/main.py           # FastAPI app, CORS, /health
   app/models/           # Pydantic v2 request/response models (provenance-first)
   app/routers/api.py    # all /api routes + stage_for() + _metric_range()
-  app/services/         # qloo_client · geo_client · llm_client · planner ·
-                        # demo_data (ISOLATED illustrative data — see §13)
+  app/services/         # qloo_client · qloo_progress · geo_client · llm_client ·
+                        # planner · exports · demo_data (ISOLATED — see §13)
   app/db.py · app/rate_limit.py
-  tests/test_pipeline.py
+  tests/test_pipeline.py · tests/test_api_flow.py
 packages/ui/src/        # tokens.css (light/dark vars) · index.ts (provenanceMeta)
 packages/tsconfig/      # base.json strict config
 ```
@@ -77,8 +79,12 @@ types — update `lib/api.ts` and run `pnpm generate:api` to check parity
 against the live `/openapi.json`. Maps render with Leaflet via a ref-based
 `MapView` (never `getElementById` + shared ids — that caused double-init
 crashes); the venue **list below the map is the required text alternative**.
-Copy must stay plain-language: field-level "why", no jargon-first
-explanations, technical terms only as secondary labels.
+`/new` uses `LocationAutocomplete` (debounced combobox; skips re-query for
+the just-chosen label; caps queries at 120 chars) and `ClickMap` (click →
+reverse geocode → fills the typed field; the field stays the source of
+truth, the map always has a text path). Copy must stay plain-language:
+field-level "why", no jargon-first explanations, technical terms only as
+secondary labels.
 
 **Backend.** Routers are thin; logic lives in `services/` adapters
 (`qloo_client`, `geo_client`, `llm_client`) plus the deterministic
@@ -95,19 +101,37 @@ Base: `http://localhost:8000`. All `/api` routes are rate-limited (60/min/IP).
 | Method & path | Purpose |
 |---|---|
 | `GET /health`, `GET /api/config` | liveness; which integrations are configured (no secrets) |
-| `POST /api/campaigns` | create brief (`{brief, mode}`); geocodes real mode, uses fixed Kothrud brief in `demo` mode |
+| `POST /api/campaigns` | create brief (`{brief, mode}`); USD default, INR compatibility; geocodes real mode, uses the selected demo scenario in `demo` mode |
 | `GET /api/campaigns` | list with additive `stage`: `brief \| info \| plan \| results` |
 | `GET /api/campaigns/{id}` | campaign + plans + evidence + results |
 | `POST /api/campaigns/{id}/evidence` | fetch Qloo + OSM snapshot (honest `ok/thin/unavailable` statuses) |
+| `GET /api/campaigns/{id}/evidence/progress` | backend-observed Qloo requests/retries/cache per step |
 | `POST /api/campaigns/{id}/plan` | build plan; optional `{section}` regenerates one section as a new version; `planner` = `ai-model` only when the LLM path succeeded, else `standard-template` |
 | `POST /api/campaigns/{id}/results` | save aggregate counts only |
 | `GET /api/campaigns/{id}/analytics` | planned-vs-actual (descriptive; nulls when incalculable) |
-| `GET /api/demo/scenario` | fixed Kothrud brief + illustrative geocode |
+| `GET /api/campaigns/{id}/plans/compare?from_version=&to_version=` | section-level plan diff |
+| `GET /api/campaigns/{id}/export/csv\|json\|pdf` | privacy-redacted results/evidence/plan downloads |
+| `GET /api/geo/suggest?q=` | Nominatim autocomplete for the brief form (200 + honest `unavailable` state so typing never breaks) |
+| `GET /api/geo/reverse?lat=&lon=` | name a picked map point (same honesty contract; 400 for out-of-range coords) |
+| `GET /api/demo/scenario?scenario=us\|kothrud` | fixed US (East Austin) or Kothrud brief + illustrative geocode |
 
-Data flow: brief → Nominatim geocode → evidence snapshot (Qloo signals +
-Overpass venues, stored) → plan (LLM upgrade attempted in real mode only;
-schema-validated; budget forced exact) → versioned plan storage → aggregate
-results → analytics derived from stored plan metrics by name.
+Data flow: brief (suggested or tap-the-map location; USD default, INR kept
+for legacy/Kothrud) → Nominatim geocode → evidence snapshot (Qloo chain +
+Overpass venues, stored; progress polled) → plan (LLM upgrade attempted in real
+mode only; schema-validated; budget forced exact) → versioned plan storage →
+aggregate results in the campaign currency → analytics derived from stored
+plan metrics by name. Results currency must match the brief; mismatches are
+rejected. Exports are generated server-side; charts/clustering/PDF writers are
+dependency-free.
+
+**Qloo runs as a 3-step agent chain** (`qloo_client.fetch_cultural_signals`
+returns signals + steps): (1) place affinities near the area → (2) taste tags
+seeded by the top place's entity id (`signal.interests.entities`) → (3) the
+same question about a second place to double-check. Every step is persisted
+(additive `EvidenceSnapshot.qloo_steps`, per-step `Provenance`) and skipped
+steps are recorded with plain reasons — never invented values. All request
+params stay within the verified Qloo parameter set; Qloo still never supplies
+venues-with-footfall, health, trust or epidemiology data.
 
 ## 6. Development setup and environment
 
@@ -152,11 +176,12 @@ the in-memory store and data is lost on restart).
 - **Plain-language microcopy:** short sentences, field-level “why”, action
   labels that name the outcome (“Create outreach plan”, not “Generate”);
   technical terms only as secondary text; anthropomorphize nothing.
-- **Design tokens:** use CSS vars/`packages/ui` tokens; indigo is reserved
-  for interaction; warning/error *text* uses the darkened
-  `.text-strong-warning` / `.text-strong-error` classes (base tokens fail AA
-  for small text); dot-grid motif on landing hero only, via `::before` so
-  the mask never touches text.
+- **Design tokens:** use CSS vars/`packages/ui` tokens; actions are friendly
+  blue (`--hr-primary` #2563eb family) with pill-shaped, ≥48px `.btn-primary`
+  / `.btn-secondary` buttons (kid-friendly rounds); warning/error *text*
+  uses the darkened `.text-strong-warning` / `.text-strong-error` classes
+  (base tokens fail AA for small text); dot-grid motif on landing hero only,
+  via `::before` so the mask never touches text.
 - **Accessibility:** semantic HTML, associated labels/errors, 24px minimum
   touch targets, keyboard-operable popovers (never `title` tooltips for
   content), map always paired with its list, `prefers-reduced-motion`
@@ -164,10 +189,16 @@ the in-memory store and data is lost on restart).
 
 ## 9. Testing and regression requirements
 
-- Backend: `apps/api/tests/test_pipeline.py` (budget exactness, thin-evidence
-  flags, demo isolation, verification defaults, review notices, planner
-  label, stage ordering, metric lookup, no machine refs in prose). Add a test
-  for every honesty-relevant behavior you change.
+- Backend: `apps/api/tests/test_pipeline.py` (budget exactness/rounding, LLM
+  budget forcing + venue/evidence grounding, regen refs, LLM repair/fallback
+  paths, thin-evidence flags, demo isolation, verification defaults, review
+  notices, planner label, stage ordering, metric lookup, no machine refs in
+  prose, Qloo progress, distance/US categories) and
+  `apps/api/tests/test_api_flow.py` (demo flow end-to-end, US/USD flow,
+  currency mismatch rejection, null-safe analytics, validation, regen version
+  bump, honest evidence statuses, progress fallback, exports/privacy/stage
+  rules, plan compare). Add a test for every honesty-relevant behavior you
+  change; the suite is 45 tests.
 - Frontend has no unit-test harness; verify by `tsc` + `eslint` + `next
   build` plus real-browser checks: @healthreach/web `test` script is a
   placeholder — do not present it as coverage.

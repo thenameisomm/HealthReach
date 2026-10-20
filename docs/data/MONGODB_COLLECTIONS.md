@@ -355,4 +355,4 @@ async def migrate_add_planner_field():
 
 ---
 
-*Related: [Data Model](DATA_MODEL.md) · [Provenance Model](PROVENANCE_MODEL.md) · [API Contracts](api/API_CONTRACTS.md)*
+*Related: [Data Model](DATA_MODEL.md) · [Provenance Model](PROVENANCE_MODEL.md) · [API Contracts](../api/API_CONTRACTS.md)*

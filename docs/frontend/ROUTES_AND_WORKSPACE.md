@@ -25,7 +25,8 @@ HealthReach has exactly **four routes** — no dashboards, settings, accounts, o
 3. **How it works**: 4 steps (Brief → Evidence → Plan → Results)
 4. **Sources explained**: Qloo (cultural signals) + OSM (venues) in plain language
 5. **Ground rules**: Cultural relevance ≠ trust, venues need verification, estimates labeled
-6. **CTAs**: "Start a campaign" (primary) + "See a working example" (demo)
+6. **CTAs**: "Start a campaign" plus two demo buttons — East Austin, TX
+   (default/USD) and Kothrud, Pune (INR)
 
 **Responsive**: Stacks on mobile, side-by-side on desktop.
 
@@ -36,8 +37,8 @@ HealthReach has exactly **four routes** — no dashboards, settings, accounts, o
 **File**: `apps/web/app/new/page.tsx`
 
 **Query Parameters**:
-- `?mode=demo` — Pre-fills Kothrud illustrative brief
-- `?from=<campaignId>` — Copy brief from existing campaign
+- `?from=<campaignId>` — Copy brief from an existing campaign
+- Demo campaigns are created from the landing-page buttons (no query flag)
 
 **Form Fields**:
 
@@ -48,7 +49,7 @@ HealthReach has exactly **four routes** — no dashboards, settings, accounts, o
 | Audience Age Min | Number | 0-120, ≤ max | "Youngest age group you want to reach" |
 | Audience Age Max | Number | 0-120, ≥ min | "Oldest age group you want to reach" |
 | Audience Notes | Textarea | 0-500 chars, optional | "Anything else about who should come?" |
-| Budget | Number | $500-$10M (planned: USD), required | "Total budget for this campaign" |
+| Budget + currency | Number + select | $500-$10M; USD default, INR supported | "Total budget for this campaign" |
 | Duration | Number | 1-90 days, required | "How many days will the camp run?" |
 | Objective | Select | Required (awareness/attendance/screening/vaccination) | "What's the main goal?" |
 
@@ -186,7 +187,6 @@ Provenance chips with icon + label + border:
 |---|---|
 | `/campaigns/abc123` | Resumes at current phase |
 | `/campaigns/abc123?section=plan` | Scrolls to plan section (planned) |
-| `/new?mode=demo` | Pre-filled Kothrud demo brief |
 | `/new?from=abc123` | Copies brief from campaign abc123 |
 
 ### Browser History
@@ -266,4 +266,4 @@ Workspace (/campaigns/[id])
 
 ---
 
-*Related: [Frontend Architecture](FRONTEND_ARCHITECTURE.md) · [Design System](DESIGN_SYSTEM.md) · [API Contracts](api/API_CONTRACTS.md)*
+*Related: [Frontend Architecture](FRONTEND_ARCHITECTURE.md) · [Design System](DESIGN_SYSTEM.md) · [API Contracts](../api/API_CONTRACTS.md)*

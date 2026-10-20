@@ -286,4 +286,4 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 ---
 
-*Related: [LocationAutocomplete v2](LOCATION_AUTOCOMPLETE_V2.md) · [US-Focused](US_FOCUSED.md) · [API Contracts](docs/api/API_CONTRACTS.md)*
+*Related: [LocationAutocomplete v2](LOCATION_AUTOCOMPLETE_V2.md) · [US-Focused](US_FOCUSED.md) · [API Contracts](../api/API_CONTRACTS.md)*

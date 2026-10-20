@@ -1,3 +1,3 @@
-// Generated from FastAPI OpenAPI schema. Do not edit by hand.
-// Run: pnpm generate:api  (requires the API running on localhost:8000)
+// Pointer file: the real hand-maintained API types live in ./api.ts.
+// Run: pnpm generate:api  (checks route parity against the live OpenAPI schema; API on localhost:8000)
 export * from "./api";

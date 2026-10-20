@@ -274,4 +274,4 @@ Frontend polls or receives via SSE/websocket during evidence loading.
 
 ---
 
-*Related: [Qloo Integration](QLOO_INTEGRATION.md) · [Agent Orchestration](architecture/AGENT_ORCHESTRATION.md) · [Data Flow](architecture/DATA_FLOW.md)*
+*Related: [Qloo Integration](QLOO_INTEGRATION.md) · [Agent Orchestration](../architecture/AGENT_ORCHESTRATION.md) · [Data Flow](../architecture/DATA_FLOW.md)*

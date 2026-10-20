@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { api, friendlyError, type Campaign } from "@/lib/api";
 import { ProvenanceBadge } from "@/components/Provenance";
+import { briefBudget, briefCurrency, formatMoney } from "@/lib/format";
 import { EmptyState, Skeleton } from "@/components/States";
 
 const STAGE_LABEL: Record<string, string> = {
@@ -85,8 +86,8 @@ export default function Campaigns() {
                     {c.brief.topic}
                   </span>
                   <span className="mt-1 block text-[13px] text-secondary">
-                    {c.brief.location_text} · ₹
-                    {c.brief.budget_inr.toLocaleString("en-IN")} ·{" "}
+                    {c.brief.location_text} ·{" "}
+                    {formatMoney(briefBudget(c.brief), briefCurrency(c.brief))} ·{" "}
                     {c.brief.duration_days} days
                   </span>
                   {c.stage && STAGE_LABEL[c.stage] && (

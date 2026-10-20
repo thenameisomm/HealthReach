@@ -6,8 +6,11 @@ Indexes are declared for the real-Mongo path.
 
 from __future__ import annotations
 
+import logging
 import uuid
 from typing import Any
+
+logger = logging.getLogger("healthreach.db")
 
 try:
     from motor.motor_asyncio import AsyncIOMotorClient
@@ -30,20 +33,41 @@ _db = None
 async def init_db(uri: str) -> None:
     global _client, _db
     if not _HAS_MOTOR:
+        logger.warning("motor not installed — using the in-memory store (data is lost on restart)")
         return
     try:
-        _client = AsyncIOMotorClient(uri, serverSelectionTimeoutMS=1500)
-        _db = _client.get_default_database()
-        # Index declarations (best-effort; ignored if DB unreachable).
+        client = AsyncIOMotorClient(uri, serverSelectionTimeoutMS=1500)
+        db = client.get_default_database()
+        # Ping first: reachability alone decides fallback, before any index work.
+        await db.command("ping")
+    except Exception as e:
+        logger.warning(
+            "MongoDB unreachable (%s) — using the in-memory store; data is lost on restart.",
+            type(e).__name__,
+        )
+        _client = None
+        _db = None
+        return
+    _client = client
+    _db = db
+    # Index declarations are best-effort and must never disable persistence.
+    try:
         await _db["campaigns"].create_index("created_at")
         await _db["evidence"].create_index("campaign_id")
         await _db["plans"].create_index([("campaign_id", 1), ("version", 1)])
         await _db["results"].create_index("campaign_id")
+    except Exception as e:
+        logger.warning("Index setup incomplete: %s", type(e).__name__)
+    try:
         # 24h TTL cache for external API responses (only if terms allow).
-        await _db["ext_cache"].create_index("expires_at", expireAfter=0)
-    except Exception:
-        _client = None
-        _db = None
+        await _db["ext_cache"].create_index("expires_at", expireAfterSeconds=0)
+    except Exception as e:
+        logger.warning("ext_cache TTL index not created: %s", type(e).__name__)
+
+
+def is_persistent() -> bool:
+    """True when writes are backed by MongoDB (rather than the in-memory fallback)."""
+    return _db is not None
 
 
 def _using_mongo() -> bool:

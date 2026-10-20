@@ -13,11 +13,14 @@ Choice justification (documented in README):
 from __future__ import annotations
 
 import asyncio
+import math
 import time
 
 import httpx
 
 from app.models import GeocodeResult, GeoVenue, Provenance
+
+METERS_PER_MILE = 1609.344
 
 # Short in-memory TTL cache: Nominatim policy asks clients to cache, and
 # Qloo/Overpass terms discourage aggressive re-querying.
@@ -55,6 +58,24 @@ async def _throttle_and_open() -> httpx.AsyncClient:
     return httpx.AsyncClient(timeout=12.0, headers=_GEO_HEADERS, http1=True)
 
 
+async def _search_nominatim(
+    query: str, limit: int, *, us_only: bool
+) -> list[dict]:
+    """One throttled Nominatim search. US-first, then global fallback."""
+    params = {
+        "q": query,
+        "format": "jsonv2",
+        "limit": limit,
+        "accept-language": "en-US",
+    }
+    if us_only:
+        params["countrycodes"] = "us"
+    async with await _throttle_and_open() as client:
+        r = await client.get(NOMINATIM + "/search", params=params)
+        r.raise_for_status()
+        return r.json()
+
+
 async def suggest_locations(query: str, limit: int = 5) -> list[dict]:
     """Nominatim autocomplete for the brief form. Cached one hour so typing
     replay doesn't re-hit the open endpoint.
@@ -62,7 +83,8 @@ async def suggest_locations(query: str, limit: int = 5) -> list[dict]:
     Returns list of {display_name, lat, lon, type}. Raises on service failure;
     router maps failures to an honest, calm state.
 
-    US-biased: countrycodes=us, accept-language=en-US for US-focused product.
+    US-first (countrycodes=us, en-US), with a global retry when the US index
+    has no match, so non-US organizers can still use the product.
     """
     q = query.strip()
     if len(q) < 3:
@@ -71,19 +93,9 @@ async def suggest_locations(query: str, limit: int = 5) -> list[dict]:
     cached = _SUGGEST_CACHE.get(key)
     if cached and time.time() - cached[0] < SUGGEST_TTL_S:
         return cached[1]
-    async with await _throttle_and_open() as client:
-        r = await client.get(
-            NOMINATIM + "/search",
-            params={
-                "q": q,
-                "format": "jsonv2",
-                "limit": limit,
-                "countrycodes": "us",
-                "accept-language": "en-US",
-            },
-        )
-        r.raise_for_status()
-        items = r.json()
+    items = await _search_nominatim(q, limit, us_only=True)
+    if not items:
+        items = await _search_nominatim(q, limit, us_only=False)
     out = [
         {
             "display_name": str(it.get("display_name", "")),
@@ -137,19 +149,11 @@ async def geocode(location_text: str) -> GeocodeResult:
     cached = _GEOCODE_CACHE.get(key)
     if cached and time.time() - cached[0] < GEOCODE_TTL_S:
         return cached[1]
-    # Nominatim policy: absolute max 1 req/s — throttle client-side (non-blocking).
-    global _last_nominatim_call
-    wait = 1.1 - (time.time() - _last_nominatim_call)
-    if wait > 0:
-        await asyncio.sleep(wait)
-    async with httpx.AsyncClient(timeout=12.0, headers=_GEO_HEADERS, http1=True) as client:
-        r = await client.get(
-            NOMINATIM + "/search",
-            params={"q": location_text, "format": "jsonv2", "limit": 1},
-        )
-        r.raise_for_status()
-        items = r.json()
-    _last_nominatim_call = time.time()
+    # US-first: most campaigns are US-based. If the US index has no match,
+    # retry globally rather than failing non-US organizers.
+    items = await _search_nominatim(location_text, 1, us_only=True)
+    if not items:
+        items = await _search_nominatim(location_text, 1, us_only=False)
     if not items:
         raise ValueError(f"No geocode match for '{location_text}'")
     it = items[0]
@@ -163,6 +167,16 @@ async def geocode(location_text: str) -> GeocodeResult:
     return result
 
 
+def distance_m(lat1: float, lon1: float, lat2: float, lon2: float) -> int:
+    """Haversine distance in metres (rounded). Used for the text venue list."""
+    r = 6371000.0
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    dp = math.radians(lat2 - lat1)
+    dl = math.radians(lon2 - lon1)
+    a = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
+    return int(round(2 * r * math.asin(math.sqrt(a))))
+
+
 async def nearby_venues(
     lat: float, lon: float, radius_m: int = 1500
 ) -> tuple[list[GeoVenue], str, str]:
@@ -170,15 +184,19 @@ async def nearby_venues(
 
     `unavailable` means the directory itself failed (honest failure state);
     `thin` means it answered but mapped few/no community venues in range.
+    US-focused categories include FQHCs, health departments, community
+    centres, libraries, parks, schools, pharmacies and social facilities.
     """
     query = f"""[out:json][timeout:20];
 (
-  node["amenity"~"^(clinic|pharmacy|doctors|hospital|community_centre|library|school)$"](around:{radius_m},{lat},{lon});
-  node["leisure"~"^(park|playground|community_centre)$"](around:{radius_m},{lat},{lon});
-  node["shop"~"^(mall|marketplace)$"](around:{radius_m},{lat},{lon});
-  node["building"~"^(school|community|public)$"](around:{radius_m},{lat},{lon});
+  nwr["amenity"~"^(clinic|doctors|pharmacy|hospital|community_centre|library|school|social_facility|place_of_worship)$"](around:{radius_m},{lat},{lon});
+  nwr["leisure"~"^(park|playground|recreation_centre|community_centre)$"](around:{radius_m},{lat},{lon});
+  nwr["shop"~"^(mall|marketplace)$"](around:{radius_m},{lat},{lon});
+  nwr["office"="government"]["government"="health"](around:{radius_m},{lat},{lon});
+  nwr["healthcare:speciality"="fqhc"](around:{radius_m},{lat},{lon});
+  nwr["healthcare"~"^(centre|community_health_centre)$"](around:{radius_m},{lat},{lon});
 );
-out 20;"""
+out center 30;"""
     last_err: Exception | None = None
     for endpoint in OVERPASS_ENDPOINTS:
         try:
@@ -206,16 +224,38 @@ out 20;"""
     venues: list[GeoVenue] = []
     for el in (data.get("elements") or [])[:20]:
         tags = el.get("tags") or {}
+        center = el.get("center") or {}
+        vlat = el.get("lat", center.get("lat"))
+        vlon = el.get("lon", center.get("lon"))
         name = tags.get("name") or tags.get("amenity") or tags.get("leisure") or "Unnamed venue"
-        cat = tags.get("amenity") or tags.get("leisure") or tags.get("shop") or "community"
-        addr_parts = [tags.get(k) for k in ("addr:road", "addr:suburb", "addr:city") if tags.get(k)]
+        speciality = tags.get("healthcare:speciality") or tags.get("healthcare")
+        if speciality == "fqhc":
+            cat = "federally qualified health center"
+        elif tags.get("government") == "health":
+            cat = "health department"
+        else:
+            cat = (
+                tags.get("amenity")
+                or tags.get("leisure")
+                or tags.get("shop")
+                or tags.get("healthcare")
+                or tags.get("office")
+                or "community"
+            )
+        addr_parts = [tags.get(k) for k in ("addr:housenumber", "addr:road", "addr:suburb", "addr:city") if tags.get(k)]
+        dm = (
+            distance_m(lat, lon, float(vlat), float(vlon))
+            if vlat is not None and vlon is not None
+            else None
+        )
         venues.append(
             GeoVenue(
                 name=str(name)[:120],
                 category=str(cat)[:80],
                 address=", ".join(addr_parts) or None,
-                lat=el.get("lat"),
-                lon=el.get("lon"),
+                lat=float(vlat) if vlat is not None else None,
+                lon=float(vlon) if vlon is not None else None,
+                distance_m=dm,
                 provenance=Provenance.GEO,
                 needs_verification=True,
             )

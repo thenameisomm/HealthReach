@@ -19,11 +19,14 @@ Create a new campaign brief.
     "audience_age_min": "integer (0-120)",
     "audience_age_max": "integer (0-120)",
     "audience_notes": "string (0-500 chars, optional)",
-    "budget_inr": "integer (500-10000000)",
+    "budget_usd": "integer (500-10000000, USD campaigns)",
+    "budget_inr": "integer (500-10000000, INR campaigns)",
+    "currency": "USD | INR (defaults from the budget field present)",
     "duration_days": "integer (1-90)",
     "objective": "awareness | attendance | screening | vaccination"
   },
-  "mode": "real | demo"
+  "mode": "real | demo",
+  "scenario": "kothrud | us (demo mode only; default kothrud)"
 }
 ```
 
@@ -41,6 +44,7 @@ Create a new campaign brief.
       "attribution": "string"
     } | null,
     "mode": "real | demo",
+    "demo_scenario": "kothrud | us | null",
     "created_at": "ISO8601 datetime"
   },
   "meta": { "timestamp": "ISO8601 datetime" }
@@ -127,6 +131,47 @@ Gather Qloo cultural signals and OSM venues for the campaign.
 
 ---
 
+### GET /api/campaigns/{id}/evidence/progress
+
+Backend-observed Qloo progress for a request in flight, or the stored step
+summary after completion. Poll while the evidence phase runs.
+
+**Response (200):**
+```json
+{
+  "campaign_id": "cam_abc123",
+  "total_requests": 4,
+  "requests_by_step": { "1": 2, "2": 1, "3": 1 },
+  "retries": 1,
+  "cache_hits": 0,
+  "steps": [
+    {
+      "step": 1,
+      "title": "Place affinities",
+      "status": "completed",
+      "requests_made": 2,
+      "retries": 1,
+      "cache_hits": 0,
+      "started_at": "ISO8601 datetime",
+      "completed_at": "ISO8601 datetime",
+      "skip_reason": ""
+    }
+  ],
+  "overall_status": "pending | in_progress | completed | failed",
+  "current_step": 2,
+  "attribution": "Qloo Insights — taste/cultural signals only"
+}
+```
+
+`status` per step is `pending | in_progress | completed | skipped | failed`.
+Retries and cache hits are reported separately; skipped steps always carry a
+plain-language `skip_reason`. Older campaigns without live progress fall back
+to stored `qloo_steps`.
+
+**Errors:** 404 (campaign not found)
+
+---
+
 ### POST /api/campaigns/{id}/plan
 
 Generate or regenerate a campaign plan.
@@ -148,7 +193,9 @@ Generate or regenerate a campaign plan.
     "activities": PlanActivity[],
     "venues": VenueCandidate[],
     "budget": BudgetLine[],
-    "budget_total_inr": "integer",
+    "budget_total_usd": "integer | null",
+    "budget_total_inr": "integer | null",
+    "currency": "USD | INR",
     "materials": DraftMaterial[],
     "metrics": SuccessMetric[],
     "assumptions": "string[]",
@@ -174,7 +221,8 @@ Save aggregate campaign results.
 {
   "registrations": "integer (0-10000000)",
   "attendance": "integer (0-10000000)",
-  "spend_inr": "integer (0-100000000)",
+  "spend_usd": "integer (0-100000000, USD campaigns)",
+  "spend_inr": "integer (0-100000000, INR campaigns)",
   "engagement": "integer (0-10000000)",
   "notes": "string (0-1000 chars, optional)"
 }
@@ -187,7 +235,8 @@ Save aggregate campaign results.
     "campaign_id": "cam_abc123",
     "registrations": "integer",
     "attendance": "integer",
-    "spend_inr": "integer",
+    "spend_usd": "integer | null",
+    "spend_inr": "integer | null",
     "engagement": "integer",
     "notes": "string",
     "created_at": "ISO8601 datetime"
@@ -196,7 +245,8 @@ Save aggregate campaign results.
 }
 ```
 
-**Errors:** 404 (campaign not found), 422 (validation)
+**Errors:** 404 (campaign not found), 422 (validation), 400 (results currency
+does not match the campaign currency)
 
 ---
 
@@ -204,25 +254,49 @@ Save aggregate campaign results.
 
 Get planned-vs-actual analytics.
 
-**Response (200):**
+**Response with results (200):**
 ```json
 {
-  "data": {
-    "planned_registrations": "string (range, e.g., '150-200')",
+  "hasResults": true,
+  "currency": "USD",
+  "analytics": {
+    "currency": "USD",
+    "planned_registrations": "string (range, e.g., '60-150')",
     "actual_registrations": "integer",
     "planned_attendance": "string (range)",
     "actual_attendance": "integer",
-    "planned_spend_inr": "integer",
-    "actual_spend_inr": "integer",
+    "planned_engagement": "string (range or 'Not stated in plan')",
+    "actual_engagement": "integer",
+    "planned_spend": "integer",
+    "actual_spend": "integer",
+    "planned_spend_usd": "integer | null",
+    "planned_spend_inr": "integer | null",
+    "actual_spend_usd": "integer | null",
+    "actual_spend_inr": "integer | null",
     "cost_per_registration": "number | null",
-    "attendance_rate": "number | null",
+    "cost_per_attendee": "number | null",
+    "attendance_rate": "number | null (0-1)",
     "note": "Descriptive comparison only. Differences may reflect many factors and do not prove the plan caused the outcome."
   },
-  "meta": { "timestamp": "ISO8601 datetime" }
+  "results": ResultsInput
 }
 ```
 
-**Errors:** 404 (campaign not found), 400 (results not entered)
+**Response before results (200):**
+```json
+{
+  "hasResults": false,
+  "currency": "USD",
+  "planned_spend": "integer",
+  "planned_range": "string"
+}
+```
+
+Currency lives at the top level only in the no-results response; when results
+exist it is inside `analytics`. Cost fields are `null` when their denominator
+is zero. This route is descriptive only, never causal.
+
+**Errors:** 404 (campaign not found)
 
 ---
 
@@ -284,11 +358,69 @@ Reverse geocode a map click.
 
 ---
 
+## Analysis & Export Endpoints
+
+### GET /api/campaigns/{id}/plans/compare?from_version=&to_version=
+
+Section-level diff between two stored plan versions.
+
+**Response (200):**
+```json
+{
+  "campaign_id": "cam_abc123",
+  "from_version": 1,
+  "to_version": 2,
+  "changed_sections": ["budget", "summary"],
+  "changes": {
+    "budget": { "from": BudgetLine[], "to": BudgetLine[] },
+    "summary": { "from": "string", "to": "string" }
+  }
+}
+```
+
+Only changed sections are included. Raw provider payloads are never exposed.
+
+**Errors:** 404 (campaign or either version not found)
+
+---
+
+### GET /api/campaigns/{id}/export/csv
+
+Aggregate results export. Available before results (zeros) so organizers can
+see the columns; includes planned and actual values plus currency.
+
+**Response (200):** `text/csv; charset=utf-8` attachment.
+
+---
+
+### GET /api/campaigns/{id}/export/json
+
+Evidence snapshot export (Qloo signals/steps, OSM venues, provenance).
+
+**Response (200):** `application/json` attachment with PII redacted and no
+secret-like keys.
+
+**Errors:** 404 (campaign not found), 400 (evidence required first)
+
+---
+
+### GET /api/campaigns/{id}/export/pdf
+
+Readable plan export (activities, venues, budget, materials, metrics, review
+notice) using a minimal built-in PDF writer.
+
+**Response (200):** `application/pdf` attachment.
+
+**Errors:** 404 (campaign not found), 400 (plan required first)
+
+---
+
 ## Demo Endpoints
 
-### GET /api/demo/scenario
+### GET /api/demo/scenario?scenario=us|kothrud
 
-Get fixed Kothrud demo scenario.
+Get a fixed illustrative demo scenario. Defaults to `kothrud` when omitted;
+the landing page requests `us` first.
 
 **Response (200):**
 ```json
@@ -308,16 +440,15 @@ Get fixed Kothrud demo scenario.
 
 ### GET /health
 
-Liveness probe.
+Liveness probe and active storage mode (no secrets).
 
 **Response (200):**
 ```json
 {
-  "status": "ok",
-  "qloo_configured": "boolean",
-  "llm_configured": "boolean",
-  "mongodb_connected": "boolean",
-  "timestamp": "ISO8601 datetime"
+  "ok": true,
+  "qlooConfigured": "boolean",
+  "llmConfigured": "boolean",
+  "dbMode": "mongo | memory"
 }
 ```
 
@@ -328,12 +459,15 @@ Integration status (no secrets).
 **Response (200):**
 ```json
 {
-  "qloo_configured": "boolean",
-  "llm_configured": "boolean",
-  "demo_mode_available": "boolean",
-  "version": "string"
+  "qlooConfigured": "boolean",
+  "llmConfigured": "boolean",
+  "dbConfigured": "boolean",
+  "dbMode": "mongo | memory"
 }
 ```
+
+`dbMode: memory` means the in-memory fallback is active and data is lost on
+restart.
 
 ---
 
@@ -347,7 +481,9 @@ interface CampaignBrief {
   audience_age_min: number;
   audience_age_max: number;
   audience_notes: string;
-  budget_inr: number;        // planned: budget_usd
+  budget_usd: number | null;  // present for USD campaigns
+  budget_inr: number | null;  // present for INR campaigns
+  currency: "USD" | "INR";
   duration_days: number;
   objective: "awareness" | "attendance" | "screening" | "vaccination";
 }
@@ -428,7 +564,8 @@ interface PlanActivity {
   channel: string;
   why: string;
   evidence_refs: string[];
-  cost_inr: number;             // planned: cost_usd
+  cost_usd: number | null;
+  cost_inr: number | null;
   provenance: "ai";
 }
 ```
@@ -449,7 +586,8 @@ interface VenueCandidate {
 ```typescript
 interface BudgetLine {
   label: string;
-  amount_inr: number;           // planned: amount_usd
+  amount_usd: number | null;
+  amount_inr: number | null;
   provenance: "ai";
 }
 ```
@@ -500,7 +638,8 @@ interface Plan {
 interface ResultsInput {
   registrations: number;
   attendance: number;
-  spend_inr: number;            // planned: spend_usd
+  spend_usd: number | null;
+  spend_inr: number | null;
   engagement: number;
   notes: string;
 }
@@ -513,9 +652,16 @@ interface Analytics {
   actual_registrations: number;
   planned_attendance: string;
   actual_attendance: number;
-  planned_spend_inr: number;
-  actual_spend_inr: number;
+  planned_engagement: string;
+  actual_engagement: number;
+  planned_spend: number;
+  actual_spend: number;
+  planned_spend_usd: number | null;
+  planned_spend_inr: number | null;
+  actual_spend_usd: number | null;
+  actual_spend_inr: number | null;
   cost_per_registration: number | null;
+  cost_per_attendee: number | null;
   attendance_rate: number | null;
   note: string;
 }

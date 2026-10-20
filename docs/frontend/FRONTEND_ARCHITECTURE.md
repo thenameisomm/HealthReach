@@ -305,7 +305,7 @@ pnpm generate:api
 - **Dynamic import**: `const L = await import('leaflet')` (SSR-safe)
 - **Ref-based**: `useRef<HTMLDivElement>` for map container (no `getElementById`)
 - **Tiles**: OSM Standard + CARTO Light with attribution
-- **Markers**: Campaign pin + venue markers (clustering planned)
+- **Markers**: Campaign pin + venue markers; ResultsMap adds grid clustering and a selectable list
 - **Cleanup**: `useEffect` return removes map on unmount
 
 ### MapView Component
@@ -377,4 +377,4 @@ interface ClickMapProps {
 
 ---
 
-*Related: [Routes & Workspace](ROUTES_AND_WORKSPACE.md) · [Design System](DESIGN_SYSTEM.md) · [Accessibility](ACCESSIBILITY.md) · [API Client](api/API_CONTRACTS.md)*
+*Related: [Routes & Workspace](ROUTES_AND_WORKSPACE.md) · [Design System](DESIGN_SYSTEM.md) · [Accessibility](ACCESSIBILITY.md) · [API Client](../api/API_CONTRACTS.md)*

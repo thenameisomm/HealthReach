@@ -285,4 +285,4 @@ class Provenance(str, Enum):
 
 ---
 
-*Related: [MongoDB Collections](MONGODB_COLLECTIONS.md) · [Provenance Model](PROVENANCE_MODEL.md) · [Estimates & Metrics](ESTIMATES_AND_METRICS.md) · [API Contracts](api/API_CONTRACTS.md)*
+*Related: [MongoDB Collections](MONGODB_COLLECTIONS.md) · [Provenance Model](PROVENANCE_MODEL.md) · [Estimates & Metrics](ESTIMATES_AND_METRICS.md) · [API Contracts](../api/API_CONTRACTS.md)*

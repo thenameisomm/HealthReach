@@ -11,11 +11,14 @@
 from __future__ import annotations
 
 import json
+import logging
 
 import httpx
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import AliasChoices, BaseModel, Field, ValidationError
 
 from app.config import get_settings
+
+logger = logging.getLogger("healthreach.llm")
 
 
 class LlmActivity(BaseModel):
@@ -23,7 +26,8 @@ class LlmActivity(BaseModel):
     channel: str
     why: str
     evidence_refs: list[str] = Field(default_factory=list)
-    cost_inr: int = Field(ge=0)
+    # Currency-neutral: the brief's currency is stated in the payload.
+    cost: int = Field(ge=0, validation_alias=AliasChoices("cost", "cost_inr"))
 
 
 class LlmVenue(BaseModel):
@@ -34,7 +38,7 @@ class LlmVenue(BaseModel):
 
 class LlmBudget(BaseModel):
     label: str
-    amount_inr: int = Field(ge=0)
+    amount: int = Field(ge=0, validation_alias=AliasChoices("amount", "amount_inr"))
 
 
 class LlmMaterial(BaseModel):
@@ -68,10 +72,37 @@ SYSTEM = """You plan community health outreach. Rules:
 - Budget amounts must sum exactly to the stated budget.
 - Reply with JSON only, matching the requested schema."""
 
-SCHEMA_HINT = """{"summary": str, "activities": [{"title": str, "channel": str, "why": str, "evidence_refs": [str], "cost_inr": int}], "venues": [{"name": str, "reason": str, "evidence_refs": [str]}], "budget": [{"label": str, "amount_inr": int}], "materials": [{"kind": "poster|message|script", "title": str, "body": str}], "metrics": [{"name": str, "target_range": str, "basis": str}], "assumptions": [str]}"""
+SCHEMA_HINT = """{"summary": str, "activities": [{"title": str, "channel": str, "why": str, "evidence_refs": [str], "cost": int}], "venues": [{"name": str, "reason": str, "evidence_refs": [str]}], "budget": [{"label": str, "amount": int}], "materials": [{"kind": "poster|message|script", "title": str, "body": str}], "metrics": [{"name": str, "target_range": str, "basis": str}], "assumptions": [str]}"""
+
+
+async def _post_chat(body: dict, timeout: float) -> str:
+    """POST to the configured OpenAI-compatible endpoint; returns message text."""
+    s = get_settings()
+    async with httpx.AsyncClient(timeout=timeout) as client:
+        r = await client.post(
+            s.LLM_BASE_URL.rstrip("/") + "/chat/completions",
+            headers={
+                "Authorization": f"Bearer {s.LLM_API_KEY}",
+                "Content-Type": "application/json",
+            },
+            json=body,
+        )
+        r.raise_for_status()
+        return r.json()["choices"][0]["message"]["content"]
+
+
+def _parse_plan(text: str) -> LlmPlan:
+    cleaned = text.strip().removeprefix("```json").removesuffix("```").strip()
+    return LlmPlan.model_validate_json(cleaned)
 
 
 async def try_llm_plan(payload: dict) -> LlmPlan | None:
+    """Draft a plan with the configured model; None means "use the fallback".
+
+    Malformed output gets one repair attempt that shows the model its own
+    invalid reply. Network/HTTP failures skip straight to fallback (retrying
+    an unreachable endpoint just burns time).
+    """
     s = get_settings()
     if not s.llm_configured:
         return None
@@ -91,47 +122,32 @@ async def try_llm_plan(payload: dict) -> LlmPlan | None:
         ],
     }
     try:
-        async with httpx.AsyncClient(timeout=45.0) as client:
-            r = await client.post(
-                s.LLM_BASE_URL.rstrip("/") + "/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {s.LLM_API_KEY}",
-                    "Content-Type": "application/json",
-                },
-                json=body,
-            )
-            r.raise_for_status()
-            text = r.json()["choices"][0]["message"]["content"]
-        # Retry parse once with stripped fences.
-        text = text.strip().removeprefix("```json").removesuffix("```").strip()
-        return LlmPlan.model_validate_json(text)
-    except (ValidationError, KeyError, ValueError, httpx.HTTPError):
-        # Try one repair pass: ask model to fix? Keep simple: second attempt.
-        try:
-            fixed = await _repair_attempt(body)
-            return fixed
-        except Exception:
-            return None
+        text = await _post_chat(body, 45.0)
+    except httpx.HTTPStatusError as e:
+        logger.info("LLM plan skipped: HTTP %s — %s", e.response.status_code, e.response.text[:160])
+        return None
+    except Exception as e:
+        logger.info("LLM plan skipped: %s", str(e)[:160])
+        return None
 
+    try:
+        return _parse_plan(text)
+    except (ValidationError, ValueError, KeyError):
+        pass
 
-async def _repair_attempt(body: dict) -> LlmPlan | None:
-    s = get_settings()
-    body["messages"].append(
-        {
-            "role": "user",
-            "content": "Your last reply was not valid JSON for the schema. Reply with JSON only.",
-        }
-    )
-    async with httpx.AsyncClient(timeout=30.0) as client:
-        r = await client.post(
-            s.LLM_BASE_URL.rstrip("/") + "/chat/completions",
-            headers={
-                "Authorization": f"Bearer {s.LLM_API_KEY}",
-                "Content-Type": "application/json",
+    repair = {
+        **body,
+        "messages": [
+            *body["messages"],
+            {"role": "assistant", "content": text[:4000]},
+            {
+                "role": "user",
+                "content": "That reply was not valid JSON for the schema. Reply with JSON only, matching the schema.",
             },
-            json=body,
-        )
-        r.raise_for_status()
-        text = r.json()["choices"][0]["message"]["content"]
-    text = text.strip().removeprefix("```json").removesuffix("```").strip()
-    return LlmPlan.model_validate_json(text)
+        ],
+    }
+    try:
+        return _parse_plan(await _post_chat(repair, 30.0))
+    except Exception as e:
+        logger.info("LLM repair also failed: %s", str(e)[:160])
+        return None
