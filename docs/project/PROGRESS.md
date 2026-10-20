@@ -36,7 +36,7 @@
 - Added implementation status table (implemented/planned)
 - Links to docs/ index
 
-### Phase E: Feature Specifications ⏳ In Progress
+### Phase E: Feature Specifications ✅ (Complete)
 - LocationAutocomplete v2
 - ClickMap v2
 - QlooCallCounter
@@ -44,11 +44,10 @@
 - ResultsMap
 - InteractiveCharts
 - AnalysisViews & Exports
-- API contract proposals
 
 ### Phase F: Targeted Implementation Fixes ⏳ Pending
-### Phase G: Integration and Merge ✅ (Documentation + Design System + README Complete)
-### Phase H: Final Verification ⏳ Pending (All Documentation + Design + README Verified)
+### Phase G: Integration and Merge ✅ (Documentation + Design System + README + Feature Specs Complete)
+### Phase H: Final Verification ⏳ Pending (All Documentation + Design + README + Specs Verified)
 
 ## Current Git State
 
