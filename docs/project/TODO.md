@@ -108,8 +108,8 @@ All 43 documentation files created and cross-referenced.
 - [x] Markdown link validation (docs/README.md index checked)
 - [x] SVG validation (assets render in README)
 - [x] No secrets committed
-- [ ] Commit final integrated changes
-- [ ] Final report generated
+- [x] Commit final integrated changes (d3053a4)
+- [x] Final report generated
 
 **Manual QA**: both demo scenarios at 1280×900 and 390×844; maps,
 clustering, charts, exports, Qloo progress counter, console errors, and

@@ -68,14 +68,15 @@ separate final feature branches were created.
 - build: passing after final ResultsMap/chart fixes (45 tests, lint, typecheck, build)
 - Browser QA: both demos, desktop + mobile, maps/clustering, charts, exports,
   progress counter, console errors, overflow checked
-- Commit: pending
+- Commit: d3053a4
 
 ## Current Git State
 
-**Branch**: integration/healthreach-redesign (uncommitted integration work)
-**Uncommitted Changes**: API, web, tests, README, and docs updates
-**Untracked**: new export/progress services, new components, test_api_flow.py,
-`.opencode/`, `Judges-research.md`
+**Branch**: integration/healthreach-redesign
+**Latest commit**: d3053a4 — complete US-first planning, progress, maps,
+charts, and exports
+**Untracked (intentionally not committed)**: `.opencode/`,
+`Judges-research.md`
 
 ## Test Status
 - Backend: 45 tests passing (test_pipeline.py + test_api_flow.py)
