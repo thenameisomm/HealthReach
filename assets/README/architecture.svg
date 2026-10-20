@@ -100,9 +100,9 @@
     <text x="230" y="110" class="component-item">planner (deterministic + LLM)</text>
     <text x="230" y="130" class="component-item">demo_data (isolated)</text>
 
-    <!-- Data & Config -->
+    <!-- Data &amp; Config -->
     <rect x="460" y="0" width="220" height="180" class="component"/>
-    <text x="470" y="25" class="component-title">Data & Config</text>
+    <text x="470" y="25" class="component-title">Data &amp; Config</text>
     <text x="470" y="50" class="component-item">models/ (Pydantic v2)</text>
     <text x="470" y="70" class="component-item">db.py (Motor + in-memory)</text>
     <text x="470" y="90" class="component-item">config.py (pydantic-settings)</text>

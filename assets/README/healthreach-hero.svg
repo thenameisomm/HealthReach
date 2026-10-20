@@ -196,5 +196,5 @@
   </text>
 
   <!-- Voltage accent line -->
-  <line x1="80" y2="588" x2="200" y2="588" stroke="url(#voltageGrad)" stroke-width="3" stroke-linecap="round"/>
+  <line x1="80" y1="588" x2="200" y2="588" stroke="url(#voltageGrad)" stroke-width="3" stroke-linecap="round"/>
 </svg>
