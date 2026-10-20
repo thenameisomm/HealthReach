@@ -1,271 +1,37 @@
-<svg
-  xmlns="http://www.w3.org/2000/svg"
-  viewBox="0 0 1200 700"
-  width="100%"
-  height="auto"
-  role="img"
-  aria-labelledby="e2o-title e2o-desc"
-  style="background: var(--hr-canvas, #e5e5e5);"
->
-  <title id="e2o-title">From Evidence to Outcomes: The HealthReach Flow</title>
-  <desc id="e2o-desc">
-    How local evidence flows through the system to produce measurable outcomes.
-    Shows provenance at each step: Qloo signals → Plan activities → Aggregate results → Honest analytics.
-  </desc>
-
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 450" width="1200" height="450" role="img" aria-labelledby="title desc">
+  <title id="title">From evidence to outcomes</title>
+  <desc id="desc">Provenance travels from evidence to plan, results, and a descriptive comparison. Cultural relevance is not trust.</desc>
   <defs>
-    <linearGradient id="provQloo" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#4f46e5"/>
-      <stop offset="100%" stop-color="#6366f1"/>
-    </linearGradient>
-    <linearGradient id="provGeo" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#10b981"/>
-      <stop offset="100%" stop-color="#34d399"/>
-    </linearGradient>
-    <linearGradient id="provAi" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#8b5cf6"/>
-      <stop offset="100%" stop-color="#a78bfa"/>
-    </linearGradient>
-    <linearGradient id="provUser" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#ef4444"/>
-      <stop offset="100%" stop-color="#f87171"/>
-    </linearGradient>
-    <marker id="flowArrow2" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
-      <path d="M0,0 L0,8 L10,4 Z" fill="#c6c6c6"/>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#171717"/>
     </marker>
-    <style>
-      .card { fill: #ffffff; stroke: #c6c6c6; stroke-width: 1; rx: 20; }
-      .card-header { font-family: 'Barlow Condensed', sans-serif; font-size: 20; font-weight: 700; fill: #ffffff; text-transform: uppercase; letter-spacing: -0.02em; }
-      .section-title { font-family: 'Barlow Condensed', sans-serif; font-size: 18; font-weight: 700; fill: #171717; text-transform: uppercase; letter-spacing: -0.01em; }
-      .item { font-family: Inter, sans-serif; font-size: 13; fill: #444444; line-height: 1.6; }
-      .item-bold { font-family: Inter, sans-serif; font-size: 13; font-weight: 600; fill: #171717; }
-      .provenance-tag { font-family: Inter, sans-serif; font-size: 10; font-weight: 600; rx: 6; }
-      .note { font-family: Inter, sans-serif; font-size: 12; fill: #979797; }
-      .arrow-label { font-family: Inter, sans-serif; font-size: 10; fill: #979797; text-anchor: middle; }
-    </style>
   </defs>
-
-  <rect width="1200" height="700" fill="#e5e5e5"/>
-
-  <!-- Title -->
-  <text x="600" y="50" font-family="'Barlow Condensed', sans-serif" font-size="36" font-weight="700" fill="#171717" text-anchor="middle" text-transform="uppercase" letter-spacing="-0.02em">
-    Evidence → Plan → Outcomes: Full Provenance Chain
-  </text>
-
-  <!-- COLUMN 1: LOCAL EVIDENCE -->
-  <g transform="translate(40, 100)">
-    <rect x="0" y="0" width="260" height="580" class="card"/>
-
-    <!-- Header -->
-    <rect x="0" y="0" width="260" height="60" rx="20 20 0 0" fill="url(#provQloo)"/>
-    <text x="20" y="38" class="card-header">Local Evidence</text>
-
-    <!-- Qloo Signals -->
-    <text x="20" y="90" class="section-title">Qloo Cultural Signals</text>
-    <g transform="translate(20, 115)">
-      <text class="item-bold">• Place affinities (affinity: -1..1)</text>
-      <text x="0" y="22" class="item">Popularity (0..1), tags, entity_id</text>
-      <text x="0" y="44" class="item">Explainability: why this place</text>
-      <text x="0" y="66" class="item">3-step chain: places → tags → cross-check</text>
-    </g>
-
-    <!-- Provenance badge -->
-    <g transform="translate(20, 195)">
-      <rect x="0" y="0" width="90" height="24" rx="12" fill="#e5e5e5" stroke="#4f46e5" stroke-width="1"/>
-      <text x="45" y="16" class="provenance-tag" fill="#4f46e5" text-anchor="middle">QLOO</text>
-    </g>
-
-    <!-- OSM Venues -->
-    <text x="20" y="235" class="section-title">OSM Community Venues</text>
-    <g transform="translate(20, 260)">
-      <text class="item-bold">• Clinic, pharmacy, community_centre</text>
-      <text x="0" y="22" class="item">Library, school, park, marketplace</text>
-      <text x="0" y="44" class="item">Overpass 3-endpoint failover</text>
-      <text x="0" y="66" class="item">needs_verification: true on every venue</text>
-    </g>
-
-    <g transform="translate(20, 340)">
-      <rect x="0" y="0" width="90" height="24" rx="12" fill="#e5e5e5" stroke="#10b981" stroke-width="1"/>
-      <text x="45" y="16" class="provenance-tag" fill="#10b981" text-anchor="middle">GEO</text>
-    </g>
-
-    <!-- Status -->
-    <text x="20" y="380" class="section-title">Honest Status</text>
-    <g transform="translate(20, 405)">
-      <rect x="0" y="0" width="70" height="22" rx="11" fill="#d1ffca" stroke="#10b981"/>
-      <text x="35" y="15" font-family="Inter" font-size="10" font-weight="600" fill="#10b981" text-anchor="middle">ok</text>
-      <rect x="80" y="0" width="70" height="22" rx="11" fill="#fff3cd" stroke="#f59e0b"/>
-      <text x="115" y="15" font-family="Inter" font-size="10" font-weight="600" fill="#f59e0b" text-anchor="middle">thin</text>
-      <rect x="160" y="0" width="90" height="22" rx="11" fill="#fef2f2" stroke="#ef4444"/>
-      <text x="205" y="15" font-family="Inter" font-size="10" font-weight="600" fill="#ef4444" text-anchor="middle">unavailable</text>
-    </g>
-
-    <!-- Note -->
-    <text x="20" y="460" class="note">"Taste affinity, not a health or trust signal"</text>
-    <text x="20" y="480" class="note">"Visit and verify before use"</text>
+  <rect width="1200" height="450" fill="#E5E5E5"/>
+<text x="60" y="72" font-family="'Arial Narrow', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="42" font-weight="800" fill="#171717" letter-spacing="-1.5">From evidence to outcomes</text><text x="60" y="112" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="22" font-weight="400" fill="#3D3D3D">Provenance travels from evidence to the final comparison.</text>  <g>
+    <rect x="55" y="150" width="250" height="240" rx="22" fill="#FFFFFF" stroke="#C6C6C6" stroke-width="1"/>
+    <rect x="55" y="150" width="250" height="8" rx="4" fill="#4F46E5"/>
+<text x="79" y="202" font-family="'Arial Narrow', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="29" font-weight="800" fill="#171717" letter-spacing="-0.8">Evidence</text><text x="79" y="258" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="21" font-weight="500" fill="#3D3D3D">Qloo hints +</text><text x="79" y="290" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="21" font-weight="500" fill="#3D3D3D">OSM places</text>    <line x1="79" y1="320" x2="281" y2="320" stroke="#C6C6C6" stroke-width="1"/>
+    <rect x="79" y="340" width="176" height="28" rx="14.0" fill="#FFFFFF" stroke="#4F46E5" stroke-width="1.5"/><text x="93" y="359.5" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#171717">QLOO · GEO</text>
   </g>
-
-  <!-- Arrow 1 -->
-  <path d="M 320 350 L 360 350" stroke="#c6c6c6" stroke-width="3" fill="none" marker-end="url(#flowArrow2)"/>
-  <text x="340" y="340" class="arrow-label">POST /evidence</text>
-
-  <!-- COLUMN 2: PLAN GENERATION -->
-  <g transform="translate(380, 100)">
-    <rect x="0" y="0" width="260" height="580" class="card"/>
-
-    <rect x="0" y="0" width="260" height="60" rx="20 20 0 0" fill="url(#provAi)"/>
-    <text x="20" y="38" class="card-header">Plan Generation</text>
-
-    <text x="20" y="90" class="section-title">Deterministic Planner (Always)</text>
-    <g transform="translate(20, 115)">
-      <text class="item">• Activities grounded on evidence refs</text>
-      <text x="0" y="22" class="item">• Venue candidates from OSM</text>
-      <text x="0" y="44" class="item">• Budget lines forced exact total</text>
-      <text x="0" y="66" class="item">• Materials + review notice</text>
-      <text x="0" y="88" class="item">• Metrics with basis + target range</text>
-    </g>
-
-    <text x="20" y="225" class="section-title">LLM Attempt (If Key Configured)</text>
-    <g transform="translate(20, 250)">
-      <text class="item">• Structured JSON output</text>
-      <text x="0" y="22" class="item">• Pydantic validation</text>
-      <text x="0" y="44" class="item">• 1 repair retry on failure</text>
-      <text x="0" y="66" class="item">• Fallback: deterministic template</text>
-    </g>
-
-    <g transform="translate(20, 320)">
-      <rect x="0" y="0" width="90" height="24" rx="12" fill="#e5e5e5" stroke="#8b5cf6" stroke-width="1"/>
-      <text x="45" y="16" class="provenance-tag" fill="#8b5cf6" text-anchor="middle">AI</text>
-    </g>
-
-    <text x="20" y="360" class="section-title">Planner Label</text>
-    <g transform="translate(20, 385)">
-      <rect x="0" y="0" width="120" height="26" rx="13" fill="#d1ffca" stroke="#10b981" stroke-width="1"/>
-      <text x="60" y="18" font-family="Inter" font-size="11" font-weight="600" fill="#10b981" text-anchor="middle">ai-model</text>
-      <rect x="130" y="0" width="120" height="26" rx="13" fill="#e5e5e5" stroke="#c6c6c6"/>
-      <text x="190" y="18" font-family="Inter" font-size="11" font-weight="600" fill="#979797" text-anchor="middle">standard-template</text>
-    </g>
-
-    <text x="20" y="430" class="section-title">Versioning</text>
-    <text x="20" y="455" class="item">Section regen → version++</text>
-    <text x="20" y="477" class="item">Other sections preserved</text>
-    <text x="20" y="499" class="item">Template planner for regen</text>
-
-    <text x="20" y="530" class="note">Budget always exact • Evidence refs validated</text>
+  <line x1="309" y1="270" x2="331" y2="270" stroke="#171717" stroke-width="2" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="335" y="150" width="250" height="240" rx="22" fill="#FFFFFF" stroke="#C6C6C6" stroke-width="1"/>
+    <rect x="335" y="150" width="250" height="8" rx="4" fill="#8B5CF6"/>
+<text x="359" y="202" font-family="'Arial Narrow', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="29" font-weight="800" fill="#171717" letter-spacing="-0.8">Plan</text><text x="359" y="258" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="21" font-weight="500" fill="#3D3D3D">Activities, venues,</text><text x="359" y="290" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="21" font-weight="500" fill="#3D3D3D">exact budget</text>    <line x1="359" y1="320" x2="561" y2="320" stroke="#C6C6C6" stroke-width="1"/>
+    <rect x="359" y="340" width="176" height="28" rx="14.0" fill="#FFFFFF" stroke="#8B5CF6" stroke-width="1.5"/><text x="373" y="359.5" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#171717">AI · ESTIMATE</text>
   </g>
-
-  <!-- Arrow 2 -->
-  <path d="M 660 350 L 700 350" stroke="#c6c6c6" stroke-width="3" fill="none" marker-end="url(#flowArrow2)"/>
-  <text x="680" y="340" class="arrow-label">POST /plan</text>
-
-  <!-- COLUMN 3: AGGREGATE RESULTS -->
-  <g transform="translate(720, 100)">
-    <rect x="0" y="0" width="260" height="580" class="card"/>
-
-    <rect x="0" y="0" width="260" height="60" rx="20 20 0 0" fill="url(#provUser)"/>
-    <text x="20" y="38" class="card-header">Aggregate Results</text>
-
-    <text x="20" y="90" class="section-title">Organizer Entry (Post-Campaign)</text>
-    <g transform="translate(20, 115)">
-      <text class="item-bold">• Registrations (count)</text>
-      <text x="0" y="22" class="item-bold">• Attendance (count)</text>
-      <text x="0" y="44" class="item-bold">• Spend (USD)</text>
-      <text x="0" y="66" class="item-bold">• Engagement (count)</text>
-      <text x="0" y="88" class="item">Optional notes</text>
-    </g>
-
-    <g transform="translate(20, 215)">
-      <rect x="0" y="0" width="90" height="24" rx="12" fill="#e5e5e5" stroke="#ef4444" stroke-width="1"/>
-      <text x="45" y="16" class="provenance-tag" fill="#ef4444" text-anchor="middle">USER</text>
-    </g>
-
-    <text x="20" y="255" class="section-title">Privacy: Aggregate Only</text>
-    <g transform="translate(20, 280)">
-      <text class="item">No names, phones, diagnoses</text>
-      <text x="0" y="22" class="item">No individual health data</text>
-      <text x="0" y="44" class="item">No PII sent to Qloo/LLM/OSM</text>
-    </g>
+  <line x1="589" y1="270" x2="611" y2="270" stroke="#171717" stroke-width="2" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="615" y="150" width="250" height="240" rx="22" fill="#FFFFFF" stroke="#C6C6C6" stroke-width="1"/>
+    <rect x="615" y="150" width="250" height="8" rx="4" fill="#2563EB"/>
+<text x="639" y="202" font-family="'Arial Narrow', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="29" font-weight="800" fill="#171717" letter-spacing="-0.8">Results</text><text x="639" y="258" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="21" font-weight="500" fill="#3D3D3D">Registrations,</text><text x="639" y="290" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="21" font-weight="500" fill="#3D3D3D">attendance, spend</text>    <line x1="639" y1="320" x2="841" y2="320" stroke="#C6C6C6" stroke-width="1"/>
+    <rect x="639" y="340" width="176" height="28" rx="14.0" fill="#FFFFFF" stroke="#2563EB" stroke-width="1.5"/><text x="653" y="359.5" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#171717">USER · ACTUAL</text>
   </g>
-
-  <!-- Arrow 3 -->
-  <path d="M 1000 350 L 1040 350" stroke="#c6c6c6" stroke-width="3" fill="none" marker-end="url(#flowArrow2)"/>
-  <text x="1020" y="340" class="arrow-label">POST /results</text>
-
-  <!-- COLUMN 4: ANALYTICS -->
-  <g transform="translate(1060, 100)">
-    <rect x="0" y="0" width="100" height="580" class="card"/>
-
-    <rect x="0" y="0" width="100" height="60" rx="20 20 0 0" fill="#171717"/>
-    <text x="10" y="38" class="card-header" style="font-size:18;">Analytics</text>
-
-    <text x="10" y="90" class="section-title" style="font-size:16;">Planned vs Actual</text>
-    <g transform="translate(10, 115)">
-      <text class="item">Registrations</text>
-      <text x="0" y="22" class="item">Attendance</text>
-      <text x="0" y="44" class="item">Spend</text>
-      <text x="0" y="66" class="item">Engagement</text>
-    </g>
-
-    <text x="10" y="200" class="section-title" style="font-size:16;">Derived Metrics</text>
-    <g transform="translate(10, 225)">
-      <text class="item">Cost per registration</text>
-      <text x="0" y="22" class="item">Attendance rate</text>
-      <text x="0" y="44" class="item">Budget variance</text>
-    </g>
-
-    <text x="10" y="300" class="section-title" style="font-size:16;">Null Safety</text>
-    <g transform="translate(10, 325)">
-      <rect x="0" y="0" width="80" height="40" rx="8" fill="#fef2f2" stroke="#ef4444" stroke-width="1"/>
-      <text x="40" y="25" font-family="Inter" font-size="11" font-weight="600" fill="#ef4444" text-anchor="middle">
-        Not calculable
-      </text>
-      <text x="40" y="40" font-family="Inter" font-size="10" fill="#ef4444" text-anchor="middle">
-        needs ≥1 registration
-      </text>
-    </g>
-
-    <text x="10" y="390" class="section-title" style="font-size:16;">Descriptive Only</text>
-    <text x="10" y="415" class="note" style="font-size:11; max-width:80px;">
-      "Differences may reflect many factors and do not prove the plan caused the outcome."
-    </text>
-
-    <!-- Export Options -->
-    <text x="10" y="480" class="section-title" style="font-size:16;">Exports</text>
-    <g transform="translate(10, 505)">
-      <text class="item">• CSV (results)</text>
-      <text x="0" y="22" class="item">• PDF (plan)</text>
-      <text x="0" y="44" class="item">• JSON (evidence snapshot)</text>
-    </g>
-
-    <g transform="translate(10, 580)">
-      <rect x="0" y="0" width="80" height="30" rx="6" fill="#fef2f2" stroke="#ef4444" stroke-width="1"/>
-      <text x="40" y="20" font-family="Inter" font-size="10" font-weight="600" fill="#ef4444" text-anchor="middle">
-        Privacy: No secrets, no raw provider responses, no PII
-      </text>
-    </g>
+  <line x1="869" y1="270" x2="891" y2="270" stroke="#171717" stroke-width="2" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="895" y="150" width="250" height="240" rx="22" fill="#FFFFFF" stroke="#C6C6C6" stroke-width="1"/>
+    <rect x="895" y="150" width="250" height="8" rx="4" fill="#5F5F5F"/>
+<text x="919" y="202" font-family="'Arial Narrow', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="29" font-weight="800" fill="#171717" letter-spacing="-0.8">Comparison</text><text x="919" y="258" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="21" font-weight="500" fill="#3D3D3D">Descriptive,</text><text x="919" y="290" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="21" font-weight="500" fill="#3D3D3D">never causal</text>    <line x1="919" y1="320" x2="1121" y2="320" stroke="#C6C6C6" stroke-width="1"/>
+    <rect x="919" y="340" width="176" height="28" rx="14.0" fill="#FFFFFF" stroke="#5F5F5F" stroke-width="1.5"/><text x="933" y="359.5" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#171717">DERIVED</text>
   </g>
-
-  <!-- Bottom: Full Provenance Summary -->
-  <g transform="translate(40, 690)">
-    <rect x="0" y="0" width="1120" height="40" rx="8" fill="#ffffff" stroke="#c6c6c6" stroke-width="1"/>
-    <text x="20" y="25" font-family="Inter" font-size="13" font-weight="600" fill="#171717">
-      Full Provenance Chain:
-    </text>
-    <g transform="translate(220, 0)">
-      <rect x="0" y="5" width="100" height="30" rx="15" fill="#e5e5e5" stroke="#4f46e5" stroke-width="1"/>
-      <text x="50" y="25" font-family="Inter" font-size="11" font-weight="600" fill="#4f46e5" text-anchor="middle">QLOO</text>
-      <text x="110" y="25" font-family="Inter" font-size="11" fill="#c6c6c6">→</text>
-      <rect x="125" y="5" width="100" height="30" rx="15" fill="#e5e5e5" stroke="#10b981" stroke-width="1"/>
-      <text x="175" y="25" font-family="Inter" font-size="11" font-weight="600" fill="#10b981" text-anchor="middle">GEO</text>
-      <text x="235" y="25" font-family="Inter" font-size="11" fill="#c6c6c6">→</text>
-      <rect x="250" y="5" width="100" height="30" rx="15" fill="#e5e5e5" stroke="#8b5cf6" stroke-width="1"/>
-      <text x="300" y="25" font-family="Inter" font-size="11" font-weight="600" fill="#8b5cf6" text-anchor="middle">AI</text>
-      <text x="360" y="25" font-family="Inter" font-size="11" fill="#c6c6c6">→</text>
-      <rect x="375" y="5" width="100" height="30" rx="15" fill="#e5e5e5" stroke="#ef4444" stroke-width="1"/>
-      <text x="425" y="25" font-family="Inter" font-size="11" font-weight="600" fill="#ef4444" text-anchor="middle">USER</text>
-      <text x="485" y="25" font-family="Inter" font-size="11" fill="#c6c6c6">→</text>
-      <rect x="500" y="5" width="140" height="30" rx="15" fill="#fff8e1" stroke="#f59e0b" stroke-width="1"/>
-      <text x="570" y="25" font-family="Inter" font-size="11" font-weight="600" fill="#f59e0b" text-anchor="middle">ANALYTICS (derived)</text>
-    </g>
-  </g>
-</svg>
+<text x="60" y="430" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="20" font-weight="500" fill="#5F5F5F">Cultural relevance is not trust. Candidate places still need a visit.</text></svg>
