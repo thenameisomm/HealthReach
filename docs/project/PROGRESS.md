@@ -45,17 +45,17 @@
 - InteractiveCharts
 - AnalysisViews & Exports
 
-### Phase F: Targeted Implementation Fixes ✅ (In Progress - LocationAutocomplete v2 Complete)
+### Phase F: Targeted Implementation Fixes ✅ (In Progress - LocationAutocomplete v2, ClickMap v2 Complete)
 - [x] LocationAutocomplete v2: US-biased geocoding, 300ms debounce, 120-char cap, stale cancellation
-- [ ] ClickMap v2: reverse geocode, typed field = truth, US viewport, accessible errors
+- [x] ClickMap v2: US viewport, reverse geocode, typed field = truth, accessible errors
 - [ ] QlooCallCounter: backend-observed calls, 3-step progress, retries, cache
-- [ ] US-focused: US-biased geocoding, USD formatting, miles, US venue categories, US demo
+- [ ] US-focused: USD formatting, miles, US venue categories, US demo
 - [ ] ResultsMap: campaign pin, clustered venues, verification badges, reach overlay
 - [ ] InteractiveCharts: planned vs actual, cost/reg, attendance rate, reach ranges, accessible tables
 - [ ] AnalysisViews & Exports: evidence dashboard, venue analysis, plan comparison, CSV/PDF/JSON exports
 
-### Phase G: Integration and Merge ✅ (Documentation + Design System + README + Feature Specs + LocationAutocomplete v2 Complete)
-### Phase H: Final Verification ⏳ Pending (All Documentation + Design + README + Specs + LocationAutocomplete v2 Verified)
+### Phase G: Integration and Merge ✅ (Documentation + Design System + README + Feature Specs + LocationAutocomplete v2 + ClickMap v2 Complete)
+### Phase H: Final Verification ⏳ Pending (All Documentation + Design + README + Specs + LocationAutocomplete v2 + ClickMap v2 Verified)
 
 ## Current Git State
 

@@ -65,9 +65,9 @@ All 43 documentation files created and cross-referenced.
 ## Phase F: Targeted Implementation Fixes (In Progress)
 
 - [x] LocationAutocomplete v2: US-biased geocoding, 300ms debounce, 120-char cap, stale cancellation
-- [ ] ClickMap v2: reverse geocode, typed field = truth, US viewport, accessible errors
+- [x] ClickMap v2: reverse geocode, typed field = truth, US viewport, accessible errors
 - [ ] QlooCallCounter: backend-observed calls, 3-step progress, retries, cache
-- [ ] US-focused behavior (USD formatting, miles, US venue categories, US demo scenario)
+- [ ] US-focused: USD formatting, miles, US venue categories, US demo scenario
 - [ ] ResultsMap: campaign pin, clustered venues, verification badges, reach overlay
 - [ ] InteractiveCharts: planned vs actual, cost/reg, attendance rate, reach ranges, accessible tables
 - [ ] AnalysisViews & Exports: evidence dashboard, venue analysis, plan comparison, CSV/PDF/JSON exports
@@ -84,6 +84,7 @@ All 43 documentation files created and cross-referenced.
 - [x] Merge feat/visual-design-system into integration branch
 - [x] Merge feat/readme-redesign into integration branch
 - [x] Merge feat/location-autocomplete-v2 into integration branch
+- [x] Merge feat/click-map-v2 into integration branch
 - [ ] Create feature branches for remaining implementation specs
 - [ ] Resolve conflicts carefully
 - [ ] Run all tests after integration
