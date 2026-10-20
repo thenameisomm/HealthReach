@@ -1,153 +1,267 @@
-# HealthReach AI
+<p align="center">
+  <img src="assets/README/healthreach-hero.svg" alt="HealthReach AI — Plan health outreach that actually reaches people" width="100%" max-width="1200">
+</p>
 
-Plan community health outreach with **cultural intelligence, verified ground truth, and AI-assisted planning** — then compare plan with results.
+<p align="center">
+  <strong>Plan community health outreach with cultural intelligence, verified ground truth, and AI-assisted planning — then compare plan with results.</strong>
+</p>
 
-An organizer describes a campaign (topic, place, audience, budget, duration, objective). HealthReach gathers two kinds of evidence — **taste/cultural affinity signals from Qloo** (what framing and channels feel familiar) and **verified community venues from OpenStreetMap** (where you could go) — and turns them into an inspectable outreach plan (activities, venues to evaluate, exact budget, draft materials, estimate ranges). After the camp, aggregate results show planned-vs-actual as a **descriptive comparison, never a causal claim**.
-
-> **Why cultural intelligence matters:** a free screening camp fails when its posters, language, timing, and gathering format feel alien. Qloo tells you which formats and framings an audience already leans toward — so outreach lands instead of lecturing. It never tells you who is sick, where disease is, or whom to trust. This product enforces that boundary in code and copy.
+<p align="center">
+  <a href="#quick-start">Quick Start</a> ·
+  <a href="#how-it-works">How It Works</a> ·
+  <a href="#architecture">Architecture</a> ·
+  <a href="#documentation">Documentation</a> ·
+  <a href="#demo">Demo</a> ·
+  <a href="#limitations">Limitations</a>
+</p>
 
 ---
 
-## 1. Quick start (one command)
+## The Problem
 
-**Prerequisites:** Node ≥ 18, `pnpm` ≥ 9, Python ≥ 3.11, MongoDB (optional — the API falls back to in-memory storage).
+Community health organizers run screening camps, vaccination drives, and awareness events with limited budgets and little evidence about what messaging, channels, and venues will actually work. Generic templates ignore local cultural context — posters, timing, language, and gathering formats that feel alien fail to attract attendees.
+
+**HealthReach AI** gathers two kinds of local evidence and turns them into an inspectable outreach plan:
+
+| Evidence Type | Source | What It Tells You |
+|--------------|--------|-------------------|
+| **Cultural affinity signals** | Qloo API (taste/cultural insights) | Which message framings, channels, and tones feel familiar to the local audience — so outreach lands instead of lecturing |
+| **Verified community venues** | OpenStreetMap (Nominatim + Overpass) | Candidate locations worth evaluating — clinics, community centers, libraries, parks, schools, pharmacies |
+
+---
+
+## How It Works
+
+<p align="center">
+  <img src="assets/README/campaign-workflow.svg" alt="HealthReach four-stage campaign workflow: Brief → Evidence → Plan → Results" width="100%" max-width="1200">
+</p>
+
+### 1. Brief — Describe Your Campaign
+Guided form with per-field "why" hints. Enter topic, location (autocomplete + map pick), audience age range, budget, duration, and objective.
+
+### 2. Evidence — Local Intelligence
+- **Qloo 3-step agent chain**: Place affinities → taste tags from top entity → cross-check with second place
+- **OSM venues**: Community venues via Overpass with 3-endpoint failover
+- Every value carries explicit provenance (icon + label + border, never color alone)
+
+### 3. Plan — Inspectable Outreach Plan
+Deterministic planner (always) + LLM attempt (when configured) with repair fallback. Outputs activities, venue candidates, exact budget, draft materials, and estimate ranges — all grounded on evidence.
+
+### 4. Results — Honest Comparison
+Aggregate counts only. Planned-vs-actual analytics with descriptive-only comparisons. Null-safe: "Not calculable — needs at least 1 registration."
+
+---
+
+## Architecture
+
+<p align="center">
+  <img src="assets/README/architecture.svg" alt="HealthReach system architecture: Next.js frontend, FastAPI backend, shared packages, external integrations" width="100%" max-width="1200">
+</p>
+
+**Monorepo**: Turborepo + pnpm workspaces
+- `apps/web` — Next.js 14 App Router, React 18, TypeScript strict, Tailwind CSS
+- `apps/api` — FastAPI, Pydantic v2, Motor (async MongoDB) + in-memory fallback
+- `packages/ui` — Design tokens + provenance metadata
+- `packages/tsconfig` — Shared strict TypeScript base
+
+**External Integrations**: Qloo Insights, Nominatim, Overpass, LLM (OpenAI-compatible), MongoDB
+
+---
+
+## Qloo Agent Chain
+
+<p align="center">
+  <img src="assets/README/qloo-chain.svg" alt="Qloo 3-step agent chain: place affinities → taste tags → cross-check" width="100%" max-width="1200">
+</p>
+
+Cultural intelligence runs as a **deterministic 3-step backend chain** — not an LLM tool:
+1. **Place affinities** near the campaign location
+2. **Taste tags** seeded by the top place's entity_id
+3. **Cross-check** with a second place's entity_id
+
+Every step persisted with plain-language reasoning. Honest status: `ok` | `thin` | `unavailable`.
+
+---
+
+## Evidence to Outcomes
+
+<p align="center">
+  <img src="assets/README/evidence-to-outcomes.svg" alt="Full provenance chain: Qloo signals → Plan activities → Aggregate results → Analytics" width="100%" max-width="1200">
+</p>
+
+**Provenance at every step** — icon + label + border, never color alone:
+- ◈ **Qloo** — taste affinity, never medical fact
+- ◎ **Geo** — OSM venues, needs verification
+- ✦ **AI** — estimate/draft, inspect and approve
+- ● **User** — organizer input
+- ◇ **Illustrative** — demo samples only
+
+---
+
+## Quick Start
+
+**Prerequisites**: Node ≥ 18, `pnpm` ≥ 9, Python ≥ 3.11, MongoDB (optional — in-memory fallback)
 
 ```bash
-cp .env.example .env        # then fill in keys you have; empty keys degrade gracefully
+# Clone and configure
+git clone https://github.com/thenameisomm/HealthReach.git
+cd HealthReach
+cp .env.example .env   # fill keys you have; empty keys degrade gracefully
+
+# Install and run
 pnpm install
-pnpm dev                    # runs web (:3000) + api (:8000) via Turborepo
+pnpm dev               # web :3000 + api :8000 via Turborepo
 ```
 
-Open http://localhost:3000. No keys? The **Kothrud demo** on the landing page runs the full flow on labeled illustrative data.
+Open **http://localhost:3000**. No keys? The **Kothrud demo** runs the full flow on labeled illustrative data.
 
-**Individual commands**
+### Individual Commands
 
-| Task                                   | Command                                                           |
-| -------------------------------------- | ----------------------------------------------------------------- |
-| Web only                               | `pnpm dev:web`                                                    |
-| API only                               | `pnpm dev:api` (or `uvicorn app.main:app --reload` in `apps/api`) |
-| Build all                              | `pnpm build`                                                      |
-| Lint / typecheck                       | `pnpm lint`, `pnpm typecheck`                                     |
-| Backend tests                          | `pnpm --filter @healthreach/api test` (or `pytest` in `apps/api`) |
-| Refresh typed client from live OpenAPI | `pnpm generate:api` (API must be running)                         |
-| MongoDB (optional)                     | `docker run -d -p 27017:27017 mongo:7`                            |
+| Task | Command |
+|------|---------|
+| Web only | `pnpm dev:web` |
+| API only | `pnpm dev:api` (or `uvicorn app.main:app --reload` in `apps/api`) |
+| Build all | `pnpm build` |
+| Lint / Typecheck | `pnpm lint`, `pnpm typecheck` |
+| Backend tests | `pnpm --filter @healthreach/api test` |
+| Refresh API types | `pnpm generate:api` (API must be running) |
+| MongoDB (optional) | `docker run -d -p 27017:27017 mongo:7` |
 
-## 2. Environment variables (server-side only)
+---
 
-All secrets live in the API process. Nothing prefixed `NEXT_PUBLIC_` except the API base URL (not a secret).
+## Environment Variables (Server-Side Only)
 
-| Var                                                    | Where | Required?                 | Effect when empty                                                                                                                      |
-| ------------------------------------------------------ | ----- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `QLOO_API_KEY`                                         | API   | For real cultural signals | Qloo section shows an honest “unavailable” state; plan is marked as lacking cultural signals; retry offered. No fake data substituted. |
-| `LLM_API_KEY` (+ optional `LLM_BASE_URL`, `LLM_MODEL`) | API   | For LLM-drafted plans     | Deterministic, evidence-citing fallback planner is used (same schema, same budget-exactness guarantee).                                |
-| `MONGODB_URI`                                          | API   | For persistence           | Falls back to in-memory store (data lost on restart).                                                                                  |
-| `CORS_ORIGINS`                                         | API   | —                         | Defaults to `http://localhost:3000`.                                                                                                   |
-| `NEXT_PUBLIC_API_URL`                                  | Web   | —                         | Defaults to `http://localhost:8000`. Public, not secret.                                                                               |
+All secrets live in the API process. Nothing prefixed `NEXT_PUBLIC_` except the API base URL.
 
-See `.env.example` (committed). Missing keys produce setup messages in dev, never crashes.
+| Variable | Where | Required? | Empty Behavior |
+|----------|-------|-----------|----------------|
+| `QLOO_API_KEY` | API | Real cultural signals | "Unavailable" state; plan flagged; retry offered |
+| `LLM_API_KEY` (+ `LLM_BASE_URL`, `LLM_MODEL`) | API | AI-drafted plans | Deterministic fallback planner (same schema, exact budget) |
+| `MONGODB_URI` | API | Persistence | In-memory fallback (data lost on restart) |
+| `CORS_ORIGINS` | API | — | Defaults to `http://localhost:3000` |
+| `NEXT_PUBLIC_API_URL` | Web | — | Defaults to `http://localhost:8000` (public, not secret) |
 
-## 3. Architecture
+See `.env.example` (committed). Missing keys produce setup messages, never crashes.
 
+---
+
+## Implementation Status
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Core workflow (4 routes) | ✅ Implemented | Landing, Brief, Campaign List, Workspace |
+| Qloo 3-step chain | ✅ Implemented | Persisted steps, honest statuses |
+| OSM venue discovery | ✅ Implemented | Overpass failover, 24h geocode cache |
+| Deterministic planner | ✅ Implemented | Budget forced exact |
+| LLM planner + fallback | ✅ Implemented | 1 repair retry, `planner` label |
+| Plan versioning | ✅ Implemented | Section regeneration increments version |
+| Results + analytics | ✅ Implemented | Descriptive, null-safe |
+| Demo mode (Kothrud) | ✅ Implemented | Isolated, tagged `illustrative` |
+| Provenance UI | ✅ Implemented | Icon + label + border per value |
+| **US-focused enhancements** | 🔄 Planned (v0.2) | USD, miles, US venue categories, US demo |
+| **LocationAutocomplete v2** | 🔄 Planned | Debounce, US bias, stale cancellation |
+| **ClickMap v2** | 🔄 Planned | Reverse geocode, US viewport |
+| **QlooCallCounter** | 🔄 Planned | Backend-observed calls, 3-step progress |
+| **ResultsMap** | 🔄 Planned | Campaign pin, clustered venues, verification |
+| **InteractiveCharts** | 🔄 Planned | Planned vs actual, accessible tables |
+| **Exports (CSV/PDF/JSON)** | 🔄 Planned | Privacy-preserving |
+
+---
+
+## Demo
+
+**No keys required** — click "See a working example" on the landing page.
+
+The Kothrud demo (Pune, India) runs the full flow on illustrative data:
+- Free diabetes screening camp
+- Ages 30–60, ₹10,000 budget, 7 days
+- Persistent dashed "Illustrative data" banner
+- All values tagged `provenance: illustrative` in API responses
+
+**US demo scenario (planned)**: East Austin, TX diabetes screening camp.
+
+---
+
+## Key Principles
+
+### Honesty by Design
+- Cultural relevance ≠ community trust
+- Venues are "worth evaluating" — never "trusted"
+- Reach figures are labeled estimate ranges with stated basis
+- Analytics are descriptive, never causal
+- Demo data isolated in `demo_data.py`, tagged `illustrative` in API
+
+### Privacy by Design
+- Aggregate counts only (registrations, attendance, spend, engagement)
+- No patient, personal, or medical data anywhere
+- No PII sent to Qloo, LLM, or geocoder
+
+### Accessibility
+- WCAG 2.1 AA target
+- Semantic HTML, keyboard-operable popovers
+- Map always paired with venue list (text alternative)
+- Provenance: icon + label + border (never color alone)
+- `prefers-reduced-motion` respected
+
+---
+
+## Documentation
+
+Full technical documentation in [`docs/`](docs/):
+
+| Category | Documents |
+|----------|-----------|
+| **Product** | Brief, Problem & Users, Scope, User Flows, Requirements, Roadmap |
+| **Architecture** | System Overview, Decisions, Data Flow, Agent Orchestration, Error Handling, Security |
+| **Integrations** | Qloo, LLM Contract, OSM, Geocoding, External Services |
+| **Data** | Data Model, MongoDB Collections, Provenance, Estimates & Metrics |
+| **API** | Overview, Contracts, Error Responses, Change Policy |
+| **Frontend** | Architecture, Routes, Design System, Accessibility, Visualization |
+| **Quality** | Acceptance Criteria, Test Strategy, Manual QA, Release Checklist |
+| **Operations** | Getting Started, Configuration, Development Workflow, Runbook, Troubleshooting |
+
+---
+
+## Tests & Verification
+
+- **Backend**: 34 tests passing (`test_pipeline.py` + `test_api_flow.py`)
+- **Frontend**: `tsc --noEmit` clean, `next lint` clean, `next build` succeeds
+- **API Parity**: `pnpm generate:api` verifies TypeScript client against live OpenAPI
+- **Manual QA**: Headless Chrome (1280×900 + 390×844), demo happy path, error states, mobile, keyboard focus
+
+```bash
+# Run all checks
+pnpm lint
+pnpm typecheck
+pnpm build
+pnpm --filter @healthreach/api test
 ```
-apps/web      Next.js 14 App Router · React 18 · TS strict · Tailwind 3
-  app/            / (landing) · /new (brief) · /campaigns (list) · /campaigns/[id] (workspace)
-  components/     ProvenanceBadge · InfoTip (accessible popover) · MapView (Leaflet, dynamic) · States
-  lib/api.ts      Typed HTTP client mirroring the FastAPI OpenAPI schema (single source of truth)
-apps/api      FastAPI · Pydantic v2 (fully typed models) · Motor (async MongoDB) + in-memory fallback
-  app/routers/    REST: campaigns · evidence · plan (+section regen) · results/analytics · demo/scenario · config
-  app/services/   qloo_client · geo_client · llm_client · planner · demo_data (isolated)
-  tests/          evidence→plan pipeline invariants (pytest, 5 tests)
-packages/ui    Design tokens (CSS vars for light/dark) + provenance metadata (icon+label+border)
-packages/tsconfig  Shared strict TS base
-```
 
-**Request flow:** Brief → geocode (Nominatim) → evidence snapshot (`Qloo` + `Overpass`, stored per campaign for traceability) → plan (LLM if configured, else deterministic fallback; both schema-validated, budget forced exact) → plan versions stored → aggregate results → planned-vs-actual analytics.
+---
 
-**Cross-language types:** `lib/api.ts` is the hand-maintained typed client; `pnpm generate:api` hits the live `/openapi.json` and verifies route parity (fails loudly if the API is unreachable, so drift is caught, not silent).
+## Limitations (Honest)
 
-**Resilience built in:** per-IP rate limiting (60/min), 12–45 s adapter timeouts, Overpass 3-endpoint failover, Nominatim 1 req/s throttle + 24 h geocode cache, LLM retry-then-fallback, honest empty/thin/error states everywhere.
+- Qloo coverage uneven outside major metros; thin responses shown as thin
+- OSM venue completeness varies; all venues need on-ground verification
+- No footfall, health-need, trust, or outcome data used
+- LLM plans constrained to cite evidence IDs; malformed output retries once, then falls back
+- No Hindi/Marathi localization yet; no offline support beyond honest error states
+- US-focused enhancements planned for v0.2
 
-## 4. Verified Qloo capabilities (read from docs.qloo.com, Oct 2026)
+---
 
-We built only what the official docs confirm:
+## License
 
-- **Endpoint:** `GET https://api.qloo.com/v2/insights`, auth via `x-api-key`. `filter.type` is **required**.
-- **Entity types** (`filter.type` enum): `urn:entity:place | artist | brand | movie | person | book | podcast | tv_show | videogame`, plus `urn:heatmap`, `urn:demographics`, `urn:tag`, and partially-supported `urn:entity:locality`. (`urn:entity:audience` is deprecated.)
-- **Signals we use:** `filter.location.query` (fuzzy locality name, e.g. “Kothrud”) + `filter.location.radius` (meters), `filter.location` (lat,lon / WKT / locality UUID), `filter.tags`, `signal.interests.*`, `signal.demographics.*`, `feature.explainability=true`.
-- **Outputs we show:** `affinity` (−1…1), `popularity` (0…1), tags, entity ids — labeled **taste affinity**.
-- **Lookup helpers** (for validating inputs): entity search, audiences, tag search, tag types.
-- **What Qloo does NOT provide** (and we never claim): venues with footfall, healthcare facilities, community-trust scores, epidemiology, diagnoses, or health-need data. `place` results are cultural/leisure venues — we describe them only as “culturally relevant / worth evaluating”.
-- **Attribution/caching terms:** public docs specify no fixed attribution string or cache TTL; behavior is governed by the MSA. We attribute “Cultural signals by Qloo” in UI + README and cache conservatively (in-memory geocode cache; Qloo responses stored as per-campaign evidence snapshots, not a shared cache).
+MIT — see [`LICENSE`](LICENSE).
 
-## 5. Geographic & mapping sources (choice + compliance)
+---
 
-**Chosen: OpenStreetMap stack** — Nominatim (geocoding) + Overpass (community venues: clinic, pharmacy, community_centre, library, school, park, marketplace) + Leaflet rendering OSM tiles.
+## Contributing
 
-- **Why:** open data, no billing key (demo works for anyone), clear written usage policies, sufficient for “candidate venues near camp” decisions. Google/Mapbox need billing keys and were rejected for a hackathon demo.
-- **License:** venue/geocode data © OpenStreetMap contributors, **ODbL**; tiles with visible attribution on every map.
-- **Usage-policy compliance:** Nominatim ≤ 1 req/s (client-side throttle), identifying `User-Agent`, 24 h result cache, no autocomplete-against-API, end-user-triggered queries only; Overpass timeouts + multi-endpoint failover instead of hammering one instance. (Implementation note: Nominatim’s WAF rejects some `User-Agent` strings containing `example.org` and HTTP/2 fingerprints — we use HTTP/1.1 + a clean identifier.)
-- **Honesty boundary:** OSM venues are _mapped_ places, not vetted or trusted ones — every venue carries a persistent “needs on-ground verification” state.
+See [`AGENTS.md`](AGENTS.md) for contributor instructions. This project follows a structured branching strategy with `integration/healthreach-redesign` as the integration branch.
 
-## 6. Information architecture (decided, with reasons)
+---
 
-One coherent guided workflow — **Brief → Evidence → Plan → Results** — instead of dashboards. Four routes only:
-
-| Route                       | Purpose                                                                                                                                                                                                                                                                                                                            | Why it exists                                                                          |
-| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| `/` landing                 | Plain-language hero (“Plan a health camp people will actually attend”), what-you-get outputs, 4 steps, sources in plain words, ground rules, **Start a campaign** + marked sample example                                                                                                                                          | First-impression + trust + immediate entry                                             |
-| `/new`                      | Guided brief with per-field “why”, example placeholders, explained goal options, ₹ budget, associated errors, `?from=` copy-from-earlier                                                                                                                                                                                           | Collects only what the planner needs; nothing personal                                 |
-| `/campaigns`                | Campaign list with per-campaign next-step badges (e.g. “Step 3 of 4 · create the outreach plan”)                                                                                                                                                                                                                                   | Revisit the full story; always clear what remains                                      |
-| `/campaigns/[id]` workspace | Stage subtitles + source legend → brief recap → local information (familiarity hints in plain words + places to verify, map + list) → draft plan (activities, places, exact budget, drafts, estimates, pre-use checklist, how-it-was-made line) → results (defined metrics, “not calculable” explanations, descriptive comparison) | The chain stays visible: audience & place → information → suggestion → measured result |
-
-No settings, users, notifications, or admin sections — they don’t serve the core objective.
-
-## 7. Design reconciliation (Genesis reference conflicts, resolved)
-
-- **Two-weight rule vs bold/regular/medium:** display headings use General Sans 600–700; body uses DM Sans 400; UI labels/buttons may use 500 **instead of** 400 on the same screen — never three weights together.
-- **Muted gray `#9C9C9C` contrast failure:** restricted to disabled/decorative use; all meaningful text uses `#6B6B6B` or darker. Interactive indigo text uses the darker hover `#4F46E5` (passes AA on white); primary buttons use `#4F46E5` fill so white text passes AA. Warning/error _text_ uses darkened variants (`.text-strong-warning` `#92400E`, `.text-strong-error` `#B91C1C`, lighter in dark mode) — base `#F59E0B`/`#EF4444` are borders/icons only.
-- **`title`-attribute tooltips → accessible popovers:** `InfoTip` is a real button (`aria-expanded`, `aria-describedby`, Esc to close) — required because provenance explanations are core content.
-- **Dot-grid motif:** used once, on the landing hero, as a subtle community-reach echo (`aria-hidden` decoration over content, disabled under `prefers-reduced-motion`); omitted elsewhere.
-- **Dark mode:** full token set (`packages/ui/src/tokens.css`), toggle in nav; light is the polished default, dark is fully usable.
-- **Provenance ≠ indigo:** indigo is reserved for interaction. Evidence types use icon + text label + left-border weight/style (dashed + hatch for illustrative), never color alone.
-
-## 8. Demo vs real mode
-
-|          | Real mode                                                   | Demo mode                                                                                                                                                    |
-| -------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Trigger  | “Start a campaign”                                          | “See a working example” (sample diabetes-camp plan, Kothrud Pune)                                                                                            |
-| Data     | Live Qloo + OSM; honest empty/error states when unavailable | Fixed Kothrud scenario (Rs 10,000, 7 days, ages 30–60) from `apps/api/app/services/demo_data.py` — the **only** module allowed to define illustrative values |
-| Labeling | Provenance chips per value                                  | Persistent dashed “Illustrative data” banner + `illustrative` provenance on **every** value in the API response itself, not just the UI                      |
-| Leakage  | —                                                           | Impossible by construction: real-mode code paths never import `demo_data` except the demo endpoints                                                          |
-
-## 9. Honest limitations
-
-- Qloo coverage is uneven outside major metros; thin responses are shown as thin, and plans say so.
-- Overpass community data varies in completeness; all venues need on-ground verification (space, permissions, access, power).
-- No footfall, health-need, trust, or outcome data is used — reach figures are labeled AI-estimate ranges with stated basis.
-- LLM plans (when a key is set) are constrained to cite evidence ids and admit insufficiency; malformed output retries once, then falls back deterministically.
-- No Hindi/Marathi localization yet (copy is written short and plain to allow it); no offline support beyond honest error states.
-
-## 10. Privacy
-
-Aggregate counts only (registrations, attendance, spend, engagement). No patient, personal, or medical data is collected, sent to Qloo/LLM/geocoder, or logged. Stated in plain language on the landing page, the brief form, and the results form.
-
-## 11. Provenance legend (visible in UI next to data, icon + label + border)
-
-- ◈ **Qloo signal** — taste affinity, never medical fact
-- ◎ **Verified place data** — OSM, © OpenStreetMap contributors
-- ✦ **AI interpretation** — estimate/draft, inspect and approve
-- ● **You provided** — organizer input
-- ◇ **Illustrative data** — dashed border, demo samples only
-
-## 12. Three-minute demo script (Kothrud diabetes screening camp)
-
-1. **Landing (0:00–0:40).** “HealthReach drafts outreach plans from familiar message styles + real nearby places. Hints about familiarity are never health facts. Every fact carries a source label.” Point at “What you walk away with” and “Where do the suggestions come from?”.
-2. **Run the example (0:40–1:10).** Click **“See a working example”**. Note the dashed sample-data banner. Brief: free diabetes screening camp, Kothrud Pune, ages 30–60, ₹10,000, 7 days, goal “bring people to a camp”.
-3. **Local information (1:10–1:50).** Show familiarity hints in plain words (“moderate match” + what it could mean) and “Technical details” toggle. Show the map + venue list; stress “Visit and verify before use”.
-4. **Plan (1:50–2:30).** Activities show “Based on: …” in plain words. Budget parts total exactly ₹10,000. Point at the “Before you use this plan” checklist and the “How this draft was made” line. Refresh one section live (“Get fresh ideas”).
-5. **Results (2:30–3:00).** Enter 214 / 156 / 9450 / 380 → planned-vs-actual table, cost/registration ₹44.2, attendance 73%. Close: “Descriptive, not causal.”
-
-## 13. Tests & verification status
-
-- `apps/api/tests/test_pipeline.py` (7 tests): budget exactness, thin-evidence flagging, demo isolation/tagging, venue verification defaults, material review notices, template-planner label, stage ordering — **passing**.
-- Web: `tsc --noEmit` clean, `next lint` clean, `next build` succeeds; UI states (loading/empty/thin/error/offline/illustrative) covered by deliberate components, verified manually against stopped-API and keyless modes.
+<p align="center">
+  <sub>Built with cultural intelligence • Verified ground truth • Honest by design</sub>
+</p>
