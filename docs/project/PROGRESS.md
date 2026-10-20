@@ -72,9 +72,10 @@ separate final feature branches were created.
 
 ## Current Git State
 
-**Branch**: integration/healthreach-redesign
-**Latest commit**: d3053a4 — complete US-first planning, progress, maps,
-charts, and exports
+**Branch**: main
+**Merged**: all documentation, design, location, click-map, and feature
+branches fast-forwarded into `main` at `52e9b9a`; feature work is `d3053a4`
+**Local vs remote**: `main` is ahead of `origin/main`; nothing was pushed
 **Untracked (intentionally not committed)**: `.opencode/`,
 `Judges-research.md`
 
